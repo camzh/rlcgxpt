@@ -1,0 +1,9 @@
+{
+  "desc": "鐠愌勭爱閻婢樼亸蹇曗柤鎼?sitemap",
+  "rules": [
+    {
+      "action": "allow",
+      "page": "*"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+<view class="page batch-page">
+  <view class="form-title">{{title}}</view>
+  <view class="form-subtitle" wx:if="{{mode === 'batch'}}">上传CSV/TXT，或复制Excel表格。系统生成预览卡片后再发布。</view>
+  <view class="form-subtitle" wx:else>上传图片识别货源或需求信息，系统生成预览卡片后再发布。</view>
+
+  <view class="card import-card">
+    <view class="import-actions">
+      <button wx:if="{{mode === 'batch'}}" class="button-primary import-button" bindtap="chooseFile">上传表格</button>
+      <button wx:if="{{mode === 'image'}}" class="button-primary import-button" bindtap="chooseImageForOcr">上传图片</button>
+      <button wx:if="{{mode === 'batch'}}" class="button-ghost import-button" bindtap="useSample">填入示例</button>
+    </view>
+    <view class="import-tip" wx:if="{{mode === 'batch'}}">支持Excel另存的CSV/TXT；直接上传xlsx会提示转为CSV或复制粘贴。</view>
+    <view class="import-tip" wx:else>图片识别适合需求截图、聊天记录、报价单截图，识别后会生成待确认卡片。</view>
+    <view class="ocr-preview" wx:if="{{imagePath}}">
+      <image class="ocr-image" src="{{imagePath}}" mode="aspectFill" />
+      <view class="ocr-text"><text class="muted">已上传图片，识别文字会同步到下方输入框。</text></view>
+    </view>
+    <textarea wx:if="{{mode === 'batch'}}" class="import-textarea" value="{{pasteText}}" bindinput="onPasteInput" placeholder="把Excel表格复制后粘贴到这里，第一行必须是表头"></textarea>
+    <textarea wx:else class="import-textarea" value="{{pasteText}}" bindinput="onPasteInput" placeholder="可粘贴图片识别出来的文字，或手动输入一段需求描述"></textarea>
+    <button wx:if="{{mode === 'batch'}}" class="button-ghost parse-button" bindtap="parsePasteText">识别表格内容</button>
+    <button wx:else class="button-ghost parse-button" bindtap="parsePasteText">识别文字内容</button>
+  </view>
+
+  <view class="section-row" wx:if="{{items.length > 0}}">
+    <text class="section-title">待确认卡片</text>
+    <text class="muted">可发布 {{validCount}} 条，需补充 {{errorCount}} 条</text>
+  </view>
+
+  <view wx:for="{{items}}" wx:key="rowNo" class="inventory-card {{item.isUrgent ? 'urgent-card' : ''}} {{!item.valid ? 'invalid-card' : ''}}">
+    <view class="inventory-top">
+      <view class="inventory-main">
+        <view class="inventory-title"><text wx:if="{{item.isUrgent}}" class="urgent-badge">急</text>{{item.title}}</view>
+        <view class="inventory-model" wx:if="{{type === 'supply'}}">{{item.category}} / {{item.condition}} / {{item.stockStatus}} / {{item.brand}} {{item.model}}</view>
+        <view class="inventory-model" wx:else>{{item.customerTag}} / {{item.brand}} {{item.model}} / {{item.gpu}}</view>
+      </view>
+      <view class="status-tag {{item.valid ? 'status-onsale' : 'status-offline'}}">{{item.valid ? '可发布' : '需补充'}}</view>
+    </view>
+    <view class="business-grid">
+      <view wx:if="{{type === 'supply'}}"><text class="cell-label">价格</text><text class="cell-value price">{{item.price || '未填'}}</text></view>
+      <view wx:else><text class="cell-label">预算</text><text class="cell-value price">{{item.budgetMin || 0}}-{{item.budgetMax || 0}}</text></view>
+      <view><text class="cell-label">数量</text><text class="cell-value">{{item.quantity}}</text></view>
+      <view><text class="cell-label">地区/交期</text><text class="cell-value">{{item.location || item.region}} · {{item.deliveryDate || item.arrivalDate}}</text></view>
+      <view><text class="cell-label">联系人</text><text class="cell-value">{{item.contactName}}</text></view>
+    </view>
+    <view class="error-text" wx:if="{{!item.valid}}">第{{item.rowNo}}行：{{item.errorText}}</view>
+    <view class="card-actions"><button class="button-ghost remove-button" data-index="{{index}}" bindtap="removeItem">移除</button></view>
+  </view>
+
+  <view class="fixed-actions" wx:if="{{items.length > 0}}">
+    <button class="button-primary action-button" bindtap="confirmImport">确认发布 {{validCount}} 条</button>
+  </view>
+</view>

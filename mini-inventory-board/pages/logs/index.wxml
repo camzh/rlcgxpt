@@ -1,0 +1,41 @@
+<view class="page activity-page">
+  <view class="board-header">
+    <view>
+      <view class="page-title">动态</view>
+      <view class="page-subtitle">优先查看需要处理的撮合提醒</view>
+    </view>
+  </view>
+
+  <view class="card block">
+    <view class="block-title">待处理提醒</view>
+    <view wx:if="{{notifications.length === 0}}" class="empty-state">
+      <view class="empty-title">暂无提醒</view>
+      <view class="muted">有新的供需匹配时会显示在这里。</view>
+    </view>
+    <view wx:for="{{notifications}}" wx:key="id" class="log-card-item">
+      <view class="log-top">
+        <view class="log-action">{{item.title}}</view>
+        <view class="status-tag">{{item.read ? '已读' : '未读'}}</view>
+      </view>
+      <view class="log-target">{{item.summary}}</view>
+      <view class="log-meta">{{item.detail}}</view>
+    </view>
+  </view>
+
+  <view class="card block">
+    <view class="block-title">业务日志</view>
+    <view wx:if="{{logs.length === 0}}" class="empty-state">
+      <view class="empty-title">暂无日志</view>
+      <view class="muted">货源新增、更新、成交和下架后会显示在这里。</view>
+    </view>
+    <view wx:for="{{logs}}" wx:key="id" class="log-card-item">
+      <view class="log-top">
+        <view class="log-action">{{item.actionText}}</view>
+        <view class="status-tag">{{item.operatorName}}</view>
+      </view>
+      <view class="log-target">{{item.targetTitle}}</view>
+      <view class="log-meta">{{item.createdAtText}}</view>
+      <view class="muted" wx:if="{{item.remark}}">{{item.remark}}</view>
+    </view>
+  </view>
+</view>

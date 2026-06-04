@@ -1,0 +1,50 @@
+{
+    "cloudfunctionRoot": "cloudfunctions/",
+    "pages":  [
+                  "pages/register/index",
+                  "pages/admin-approvals/index",
+                  "pages/board/index",
+                  "pages/detail/index",
+                  "pages/form/index",
+                  "pages/demand-form/index",
+                  "pages/batch-import/index",
+                  "pages/logs/index",
+                  "pages/market/index",
+                  "pages/metric-list/index",
+                  "pages/mine/index"
+              ],
+    "window":  {
+                   "navigationBarTitleText":  "Inventory Board",
+                   "navigationBarBackgroundColor":  "#133A5E",
+                   "navigationBarTextStyle":  "white",
+                   "backgroundColor":  "#F4F7FB",
+                   "backgroundTextStyle":  "light"
+               },
+    "tabBar":  {
+                   "custom":  true,
+                   "color":  "#6B7A90",
+                   "selectedColor":  "#133A5E",
+                   "backgroundColor":  "#FFFFFF",
+                   "borderStyle":  "black",
+                   "list":  [
+                                {
+                                    "pagePath":  "pages/board/index",
+                                    "text":  "Board"
+                                },
+                                {
+                                    "pagePath":  "pages/logs/index",
+                                    "text":  "Activity"
+                                },
+                                {
+                                    "pagePath":  "pages/market/index",
+                                    "text":  "Market"
+                                },
+                                {
+                                    "pagePath":  "pages/mine/index",
+                                    "text":  "Mine"
+                                }
+                            ]
+               },
+    "style":  "v2",
+    "sitemapLocation":  "sitemap.json"
+}

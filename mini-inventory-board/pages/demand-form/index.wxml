@@ -1,0 +1,93 @@
+<view class="page">
+  <view class="form-head">
+    <view>
+      <view class="form-title">{{isEdit ? '编辑需求' : '新增需求'}}</view>
+      <view class="form-subtitle">录入客户求买需求，用于业务跟进。</view>
+    </view>
+    <view wx:if="{{!isEdit}}" class="form-head-actions">
+      <button class="batch-entry-button" bindtap="goBatchImport">批量导入</button>
+      <button class="image-entry-button" bindtap="goImageRecognize">图片识别</button>
+    </view>
+  </view>
+
+  <view class="card form-card">
+    <view class="block-title">基础信息</view>
+    <view class="field"><view class="label">需求标题</view><input class="input" value="{{form.title}}" data-field="title" bindinput="onInput" placeholder="例如：深圳客户急需 R760" /></view>
+    <view class="inline-grid">
+      <view class="field"><view class="label">客户标签</view><picker mode="selector" range="{{customerTagOptions}}" data-field="customerTag" bindchange="onPickerChange"><view class="picker">{{customerTagLabel}}</view></picker></view>
+      <view class="field"><view class="label">数量</view><input class="input" type="number" value="{{form.quantity}}" data-field="quantity" bindinput="onInput" /></view>
+    </view>
+    <view class="field">
+      <view class="label">需求类型</view>
+      <picker mode="selector" range="{{businessTypeOptions}}" range-key="label" data-field="businessType" bindchange="onPickerChange"><view class="picker">{{businessTypeLabel}}</view></picker>
+    </view>
+    <view class="inline-grid">
+      <view class="field"><view class="label">品牌</view><input class="input" value="{{form.brand}}" data-field="brand" bindinput="onInput" placeholder="由上传者自行填写" /></view>
+      <view class="field"><view class="label">型号</view><input class="input" value="{{form.model}}" data-field="model" bindinput="onInput" placeholder="由上传者自行填写" /></view>
+    </view>
+    <view class="field"><view class="label">GPU需求</view><input class="input" value="{{form.gpu}}" data-field="gpu" bindinput="onInput" placeholder="由上传者自行填写" /></view>
+
+    <view class="block-title">预算与交付</view>
+    <view class="field">
+      <view class="label">报价单位</view>
+      <picker mode="selector" range="{{budgetUnitOptions}}" range-key="label" data-field="budgetUnit" bindchange="onPickerChange"><view class="picker">{{budgetUnitLabel}}</view></picker>
+    </view>
+    <view class="inline-grid">
+      <view class="field"><view class="label">预算下限（{{budgetUnitLabel}}）</view><input class="input" type="digit" value="{{form.budgetMin}}" data-field="budgetMin" bindinput="onInput" placeholder="例如：150000" /></view>
+      <view class="field"><view class="label">预算上限（{{budgetUnitLabel}}）</view><input class="input" type="digit" value="{{form.budgetMax}}" data-field="budgetMax" bindinput="onInput" placeholder="例如：180000" /></view>
+    </view>
+    <view wx:if="{{showRentalFields}}" class="rental-demand-block">
+      <view class="block-title">租赁需求</view>
+      <view class="inline-grid">
+        <view class="field"><view class="label">租赁周期</view><picker mode="selector" range="{{rentalTermOptions}}" data-field="rentalTerm" bindchange="onPickerChange"><view class="picker">{{rentalTermLabel}}</view></picker></view>
+        <view class="field"><view class="label">租赁方式</view><picker mode="selector" range="{{rentalModeOptions}}" data-field="rentalMode" bindchange="onPickerChange"><view class="picker">{{rentalModeLabel}}</view></picker></view>
+      </view>
+      <view class="inline-grid">
+        <view class="field"><view class="label">租赁预算下限</view><input class="input" type="digit" value="{{form.rentalBudgetMin}}" data-field="rentalBudgetMin" bindinput="onInput" placeholder="万/月/台" /></view>
+        <view class="field"><view class="label">租赁预算上限</view><input class="input" type="digit" value="{{form.rentalBudgetMax}}" data-field="rentalBudgetMax" bindinput="onInput" placeholder="万/月/台" /></view>
+      </view>
+    </view>
+    <view class="inline-grid">
+      <view class="field"><view class="label">期望交期（天）</view><input class="input" type="number" value="{{form.deliveryDays}}" bindinput="onDeliveryDaysInput" placeholder="请输入天数，0表示现货" /></view>
+      <view class="field"><view class="label">地区</view><input class="input" value="{{form.region}}" data-field="region" bindinput="onInput" placeholder="例如：深圳" /></view>
+    </view>
+
+
+    <view class="block-title">采购偏好</view>
+    <view class="inline-grid">
+      <view class="field"><view class="label">使用场景</view><input class="input" value="{{form.usageScenario}}" data-field="usageScenario" bindinput="onInput" placeholder="训练 / 推理 / 存储 / 备件" /></view>
+      <view class="field"><view class="label">可接受成色</view><input class="input" value="{{form.acceptableCondition}}" data-field="acceptableCondition" bindinput="onInput" placeholder="全新 / 拆机 / 均可" /></view>
+    </view>
+    <view class="inline-grid">
+      <view class="field"><view class="label">发票要求</view><input class="input" value="{{form.invoiceRequired}}" data-field="invoiceRequired" bindinput="onInput" placeholder="不限 / 专票 / 普票" /></view>
+      <view class="field"><view class="label">决策期限</view><input class="input" value="{{form.decisionDeadline}}" data-field="decisionDeadline" bindinput="onInput" placeholder="例如：今天 / 本周内" /></view>
+    </view>
+    <view class="field"><view class="label">付款方式</view><input class="input" value="{{form.paymentTerms}}" data-field="paymentTerms" bindinput="onInput" placeholder="现款 / 月结 / 定金" /></view>
+
+    <view class="block-title">图片与视频</view>
+    <view class="upload-row">
+      <button class="button-ghost upload-button" bindtap="chooseImages">上传图片/视频</button>
+      <text class="upload-tip">可上传客户截图、配置单或现场图片。</text>
+    </view>
+    <view class="image-grid" wx:if="{{form.mediaFiles.length > 0}}">
+      <view wx:for="{{form.mediaFiles}}" wx:key="url" class="image-cell">
+        <image wx:if="{{item.type !== 'video'}}" src="{{item.url}}" data-url="{{item.url}}" mode="aspectFill" class="preview-image" bindtap="previewMedia" />
+        <video wx:else src="{{item.url}}" data-url="{{item.url}}" class="preview-image" controls="{{false}}" show-center-play-btn="{{true}}" bindtap="previewVideo"></video>
+        <view class="remove-image" data-index="{{index}}" bindtap="removeImage">删除</view>
+      </view>
+    </view>
+    <view class="block-title">对接信息</view>
+    <view class="inline-grid">
+      <view class="field"><view class="label">联系人</view><input class="input readonly-input" value="{{form.contactName}}" placeholder="自动关联账号姓名" disabled /></view>
+      <view class="field"><view class="label">电话/微信</view><input class="input readonly-input" value="{{form.contactPhone}}" placeholder="自动关联账号电话" disabled /></view>
+    </view>
+    <checkbox-group bindchange="onUrgentChange" class="urgent-row">
+      <label class="urgent-label"><checkbox value="urgent" checked="{{form.isUrgent}}" color="#c25c39" />标记紧急</label>
+    </checkbox-group>
+
+    <view class="block-title">补充说明</view>
+    <view class="field"><view class="label">备注</view><textarea class="textarea" value="{{form.remark}}" data-field="remark" bindinput="onInput" maxlength="300" placeholder="可补充交付要求、特殊约束等"></textarea></view>
+
+    <button class="button-primary submit-button" bindtap="submitForm">提交需求</button>
+  </view>
+</view>
