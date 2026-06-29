@@ -20,6 +20,32 @@ const BOARD_STORAGE_KEYS = [
   "inventory_board_items",
   "inventory_board_demands"
 ];
+const PAGE_SIZE = 30;
+
+// 只保留 wxml 实际用到的字段，减少 setData 跨线程传输量
+const SUPPLY_CARD_FIELDS = [
+  "id", "isUrgent", "cardTitle", "displayTitle", "title",
+  "cardSubtitle", "category", "model", "cardStatusClass", "cardStatusText",
+  "priceLabel", "quantity", "location", "leadTimeText",
+  "creatorContactText", "creatorName", "rentalLineText",
+  "followOwnerText", "ownerLabel", "updatedAtText"
+];
+const DEMAND_CARD_FIELDS = [
+  "id", "isUrgent", "cardTitle", "title",
+  "cardSubtitle", "customerTag", "contactName",
+  "cardStatusClass", "cardStatusText", "budgetText",
+  "quantity", "region", "deliveryDate",
+  "creatorContactText", "creatorName", "rentalLineText",
+  "followOwnerText", "updatedAtText"
+];
+
+function pickCardFields(item, fields) {
+  const slim = {};
+  for (let i = 0; i < fields.length; i++) {
+    slim[fields[i]] = item[fields[i]];
+  }
+  return slim;
+}
 
 function boardSignature(state, userId) {
   try {
@@ -86,6 +112,8 @@ Page({
     demandCount: 0,
     supplyList: [],
     demandList: [],
+    hasMoreSupply: false,
+    hasMoreDemand: false,
     currentSourceOptions: [],
     pageError: ""
   },
@@ -96,8 +124,6 @@ Page({
       return;
     }
     app.syncCustomTabBar(0);
-    service.ensureSeedData();
-    demandService.ensureSeedData();
     this.syncSourceOptions();
     this.loadData();
     schedulePageCloudRefresh(this, app, { notify: false }, {
@@ -169,19 +195,30 @@ Page({
       const demands = this.data.activePool === "demand"
         ? demandService.getDemandBoardData(demandFilters)
         : { list: [], stats: EMPTY_DEMAND_STATS };
+      // 当前池用 list.length；非当前池用轻量 countItems/countDemands，跳过 sort+decorate
       const supplyCount = this.data.activePool === "supply"
         ? supply.list.length
-        : service.getBoardData({ ...supplyFilters, status: "all", sourceFilter: "all" }).list.length;
+        : service.countItems({ keyword: this.data.keyword, currentUserId: app.globalData.activeUserId });
       const demandCount = this.data.activePool === "demand"
         ? demands.list.length
-        : demandService.getDemandBoardData({ ...demandFilters, status: "all", sourceFilter: "all" }).list.length;
+        : demandService.countDemands({ keyword: this.data.keyword });
+      // 字段裁剪：只保留 wxml 用到的字段，减少 setData 跨线程传输量
+      const supplyFull = supply.list.map((item) => pickCardFields(item, SUPPLY_CARD_FIELDS));
+      const demandFull = demands.list.map((item) => pickCardFields(item, DEMAND_CARD_FIELDS));
+      // 分页：只渲染前 PAGE_SIZE 条，剩余通过 onReachBottom 懒加载
+      this._allSupplyItems = supplyFull;
+      this._allDemandItems = demandFull;
+      this._supplyPage = 1;
+      this._demandPage = 1;
       this.setData({
         stats: supply.stats,
         demandStats: demands.stats,
-        supplyList: supply.list,
-        demandList: demands.list,
+        supplyList: supplyFull.slice(0, PAGE_SIZE),
+        demandList: demandFull.slice(0, PAGE_SIZE),
         supplyCount,
         demandCount,
+        hasMoreSupply: supplyFull.length > PAGE_SIZE,
+        hasMoreDemand: demandFull.length > PAGE_SIZE,
         reviewQueueCount: supply.reviewQueueCount,
         pageError: ""
       });
@@ -237,6 +274,24 @@ Page({
         }
       }
     });
+  },
+
+  onReachBottom() {
+    if (this.data.activePool === "supply" && this.data.hasMoreSupply) {
+      this._supplyPage++;
+      const visible = this._allSupplyItems.slice(0, this._supplyPage * PAGE_SIZE);
+      this.setData({
+        supplyList: visible,
+        hasMoreSupply: this._allSupplyItems.length > visible.length
+      });
+    } else if (this.data.activePool === "demand" && this.data.hasMoreDemand) {
+      this._demandPage++;
+      const visible = this._allDemandItems.slice(0, this._demandPage * PAGE_SIZE);
+      this.setData({
+        demandList: visible,
+        hasMoreDemand: this._allDemandItems.length > visible.length
+      });
+    }
   },
 
   onPullDownRefresh() {

@@ -228,6 +228,13 @@
   text-align: center;
 }
 
+.load-more-hint {
+  text-align: center;
+  padding: 24rpx 0;
+  color: #9ba8bb;
+  font-size: 26rpx;
+}
+
 .status-chip-urgent {
   border-color: #f0b49b;
   color: #b24f2e;

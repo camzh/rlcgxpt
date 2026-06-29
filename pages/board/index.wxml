@@ -63,6 +63,7 @@
         <text class="muted">{{item.updatedAtText}}</text>
       </view>
     </view>
+    <view wx:if="{{hasMoreSupply}}" class="load-more-hint">上拉加载更多</view>
   </view>
 
   <view wx:if="{{activePool === 'demand'}}">
@@ -94,5 +95,6 @@
         <text class="muted">{{item.updatedAtText}}</text>
       </view>
     </view>
+    <view wx:if="{{hasMoreDemand}}" class="load-more-hint">上拉加载更多</view>
   </view>
 </view>
