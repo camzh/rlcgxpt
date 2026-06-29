@@ -14,6 +14,37 @@ const METRIC_TITLES = {
   notifications: "提醒"
 };
 
+const METRIC_STORAGE_KEYS = [
+  "inventory_board_items",
+  "inventory_board_demands",
+  "inventory_board_notifications"
+];
+
+function metricSignature(userId, metric) {
+  try {
+    return [
+      userId || "",
+      metric || "",
+      ...METRIC_STORAGE_KEYS.map((key) => {
+        const rows = wx.getStorageSync(key) || [];
+        if (!Array.isArray(rows) || !rows.length) return `${key}:0`;
+        const first = rows[0] || {};
+        const last = rows[rows.length - 1] || {};
+        return [
+          key,
+          rows.length,
+          first.id || "",
+          first.updatedAt || first.createdAt || "",
+          last.id || "",
+          last.updatedAt || last.createdAt || ""
+        ].join(":");
+      })
+    ].join("|");
+  } catch (error) {
+    return `${userId || ""}:${metric || ""}:${Date.now()}`;
+  }
+}
+
 Page({
   data: {
     metric: "created",
@@ -62,6 +93,11 @@ Page({
   },
 
   loadData() {
+    // signature 短路：数据未变时跳过全量 getMyDashboard + filter + sort
+    const sig = metricSignature(app.globalData.activeUserId, this.data.metric);
+    if (sig === this._lastMetricSignature) {
+      return;
+    }
     const metric = this.data.metric;
     if (metric === "notifications") {
       const items = notificationService.getNotificationsByUser(app.globalData.activeUserId)
@@ -72,6 +108,7 @@ Page({
           metricSubtitle: item.summary
         }));
       this.renderItems(items);
+      this._lastMetricSignature = sig;
       return;
     }
 
@@ -91,6 +128,7 @@ Page({
       })
       .sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime());
     this.renderItems(items);
+    this._lastMetricSignature = sig;
   },
 
   renderItems(items) {

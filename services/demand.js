@@ -41,6 +41,9 @@ function buildRentalBudgetText(item) {
   const budget = min || max ? `${min || 0}-${max || 0}万/月/台` : "租金面议";
   return [item.rentalTerm, item.rentalMode, budget].filter(Boolean).join(" / ");
 }
+// seed 只需在进程生命周期内跑一次；resetCloudCacheAfterOriginSwitch 会清 storage 后重置标志
+let _demandSeedChecked = false;
+
 function ensureSeedData() {
   const list = wx.getStorageSync(STORAGE_KEY);
   if (!list || !Array.isArray(list)) {
@@ -61,6 +64,11 @@ function ensureSeedData() {
     }
   }
   notificationService.ensureSeedData();
+  _demandSeedChecked = true;
+}
+
+function resetSeedCache() {
+  _demandSeedChecked = false;
 }
 
 function isMockDemoDemand(item = {}) {
@@ -75,7 +83,9 @@ function isMockDemoDemandLog(log = {}) {
 }
 
 function getDemands() {
-  ensureSeedData();
+  if (!_demandSeedChecked) {
+    ensureSeedData();
+  }
   return clone(wx.getStorageSync(STORAGE_KEY) || []);
 }
 
@@ -676,6 +686,41 @@ function addAdminNotice(item, type, title, summary, suffix) {
   })));
 }
 
+// 轻量计数：只做 keyword 过滤，跳过 status/source/business/sort/decorate
+function countDemands({ keyword = "", includeInactive = false } = {}) {
+  const normalized = keyword.trim().toLowerCase();
+  return getDemands()
+    .filter((item) => !item.isDeleted)
+    .filter((item) => {
+      if (!includeInactive && (item.status === "offline" || item.status === "done")) {
+        return false;
+      }
+      if (!normalized) {
+        return true;
+      }
+      const source = [
+        item.title,
+        item.customerTag,
+        item.brand,
+        item.model,
+        item.gpu,
+        item.region,
+        item.contactName,
+        item.contactPhone,
+        getBusinessTypeText(item.businessType),
+        item.rentalTerm,
+        item.rentalMode,
+        item.rentalBudgetMin,
+        item.rentalBudgetMax,
+        item.remark
+      ]
+        .join(" ")
+        .toLowerCase();
+      return source.includes(normalized);
+    })
+    .length;
+}
+
 function getDemandBoardData({ keyword = "", status = "all", creatorId = "", urgentOnly = false, reviewPendingOnly = false, businessFilter = "all", sourceFilter = "all", currentUserId = "", includeInactive = false } = {}) {
   const normalized = keyword.trim().toLowerCase();
   const list = getDemands()
@@ -755,7 +800,8 @@ function getDemandBoardData({ keyword = "", status = "all", creatorId = "", urge
       following: list.filter((item) => item.status === "following").length,
       done: list.filter((item) => item.status === "done").length,
       pending: list.filter((item) => item.status === "pending").length
-    }
+    },
+    totalCount: countDemands({ keyword, includeInactive })
   };
 }
 
@@ -1267,6 +1313,7 @@ function getMyDashboardStats(userId) {
 }
 module.exports = {
   ensureSeedData,
+  resetSeedCache,
   clearLocalOnlyDemands,
   getBootstrapDemands,
   refreshCloudDemands,
@@ -1274,6 +1321,7 @@ module.exports = {
   getDemands,
   getDemandById,
   getDemandBoardData,
+  countDemands,
   getTimeline,
   getTimelineCount,
   getAdminDashboard,

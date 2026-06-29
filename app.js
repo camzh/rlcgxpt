@@ -115,6 +115,9 @@ App({
     wx.removeStorageSync("inventory_board_logs");
     wx.removeStorageSync("inventory_board_demand_logs");
     wx.removeStorageSync(BOOTSTRAP_STORAGE_KEY);
+    // 清 storage 后重置 seed 标志位，让下次 getItems 重新跑 ensureSeedData
+    inventoryService.resetSeedCache();
+    demandService.resetSeedCache();
     wx.setStorageSync(CLOUD_MIGRATION_STORAGE_KEY, {
       origin: "https://rlcgxpt.com",
       at: new Date().toISOString()

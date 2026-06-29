@@ -86,6 +86,7 @@ Page({
 
   onHide() {
     clearPageCloudRefresh(this);
+    this.clearDeferredMineTasks();
   },
 
   onCloudSynced() {
@@ -96,6 +97,7 @@ Page({
     const activeUserId = app.globalData.activeUserId;
     const signature = dashboardSignature(activeUserId);
     if (signature === this._lastDashboardSignature) {
+      this.scheduleDeferredMineTasks(activeUserId, this.data.isAdminDashboard);
       return;
     }
     const usePreview = !this.data.recentItemsExpanded && service.getMyDashboardPreview;
@@ -105,10 +107,6 @@ Page({
     const demandData = demandService.getMyDashboardStats
       ? demandService.getMyDashboardStats(activeUserId)
       : demandService.getMyDashboard(activeUserId);
-    const approvalTodoCount = data.isAdminDashboard
-      ? (service.getPendingApprovalCount ? service.getPendingApprovalCount(activeUserId) : 0)
-        + (demandService.getPendingApprovalCount ? demandService.getPendingApprovalCount(activeUserId) : 0)
-      : 0;
     const notifications = notificationService.getNotificationsByUser(activeUserId);
     const supplyItems = this.markItemType(data.myItems || [], "supply");
     const itemTotal = data.myItemTotal === undefined ? supplyItems.length : data.myItemTotal;
@@ -127,13 +125,40 @@ Page({
         offline: (data.mineStats.offline || 0) + (demandData.mineStats.offline || 0)
       },
       notifications,
-      approvalTodoCount
+      approvalTodoCount: data.isAdminDashboard ? this.data.approvalTodoCount : 0
     };
     this.setData({
       ...nextData
     });
-    notificationService.markAllRead(activeUserId);
+    this.scheduleDeferredMineTasks(activeUserId, data.isAdminDashboard);
     this._lastDashboardSignature = dashboardSignature(activeUserId);
+  },
+
+  clearDeferredMineTasks() {
+    if (this._approvalCountTimer) {
+      clearTimeout(this._approvalCountTimer);
+      this._approvalCountTimer = null;
+    }
+    if (this._markReadTimer) {
+      clearTimeout(this._markReadTimer);
+      this._markReadTimer = null;
+    }
+  },
+
+  scheduleDeferredMineTasks(activeUserId, isAdminDashboard) {
+    this.clearDeferredMineTasks();
+    if (isAdminDashboard) {
+      this._approvalCountTimer = setTimeout(() => {
+        this._approvalCountTimer = null;
+        const approvalTodoCount = (service.getPendingApprovalCount ? service.getPendingApprovalCount(activeUserId) : 0)
+          + (demandService.getPendingApprovalCount ? demandService.getPendingApprovalCount(activeUserId) : 0);
+        this.setData({ approvalTodoCount });
+      }, 80);
+    }
+    this._markReadTimer = setTimeout(() => {
+      this._markReadTimer = null;
+      notificationService.markAllRead(activeUserId);
+    }, 120);
   },
 
   buildRecentSupplyState(items, expanded, totalCount) {

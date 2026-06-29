@@ -819,6 +819,48 @@ function buildStats(items) {
   );
 }
 
+// 轻量计数：只做权限/可见性/keyword 过滤，跳过 status/source/business/sort/decorate
+// 用于 board 池总数显示，避免非当前池也跑完整 filterItems
+function countItems({ keyword = "", currentUserId = "", includeInactive = false } = {}) {
+  const normalized = keyword.trim().toLowerCase();
+  const currentUser = currentUserId ? getUserById(currentUserId) : null;
+  return getItems()
+    .filter((item) => !item.isDeleted)
+    .filter((item) => {
+      if (currentUser && !authService.isAdminUser(currentUser) && item.reviewStatus === REVIEW_STATUS.PENDING && item.creatorId !== currentUser.id) {
+        return false;
+      }
+      if (!includeInactive && (item.status === INVENTORY_STATUS.OFFLINE || item.status === INVENTORY_STATUS.SOLD)) {
+        return false;
+      }
+      if (!normalized) {
+        return true;
+      }
+      const source = [
+        item.title,
+        item.category,
+        item.condition,
+        item.stockStatus,
+        item.brand,
+        item.model,
+        item.location,
+        item.configSummary,
+        item.cpu,
+        item.memory,
+        item.storage,
+        item.gpu,
+        item.nic,
+        item.contactName,
+        item.contactMethod,
+        item.customerTag
+      ]
+        .join(" ")
+        .toLowerCase();
+      return source.includes(normalized);
+    })
+    .length;
+}
+
 function filterItems({ keyword = "", status = "all", creatorId = "", currentUserId = "", urgentOnly = false, reviewPendingOnly = false, businessFilter = "all", sourceFilter = "all", includeInactive = false } = {}) {
   const normalized = keyword.trim().toLowerCase();
   const currentUser = currentUserId ? getUserById(currentUserId) : null;
@@ -1763,33 +1805,36 @@ function scoreUser(items = []) {
 }
 function getMyDashboard(userId) {
   const user = authService.getUsers().find((item) => item.id === userId) || getUserById(userId);
-  const decoratedItems = getItems().map((item) => decorateItem(item, userId));
-  const activeItems = decoratedItems.filter((item) => !item.isDeleted);
+  // 先 filter 再 decorate，避免对非管理员的全部数据做 decorate
+  const allItems = getItems();
+  const activeItems = allItems.filter((item) => !item.isDeleted);
   if (authService.isAdminUser(user)) {
-    const rawItems = getItems();
-    const metrics = getPeriodMetrics(rawItems);
-    const trendData = buildTrendData(rawItems);
-    const peopleStats = buildUserStats(rawItems);
+    const decoratedItems = activeItems.map((item) => decorateItem(item, userId));
+    const metrics = getPeriodMetrics(allItems);
+    const trendData = buildTrendData(allItems);
+    const peopleStats = buildUserStats(allItems);
     return {
       user,
       isAdminDashboard: true,
-      myItems: activeItems,
+      myItems: decoratedItems,
       peopleStats,
       mineStats: {
-        created: activeItems.length,
-        sold: activeItems.filter((item) => item.status === INVENTORY_STATUS.SOLD).length,
-        following: activeItems.filter((item) => item.status === INVENTORY_STATUS.FOLLOWING).length,
-        offline: activeItems.filter((item) => item.status === INVENTORY_STATUS.OFFLINE).length,
+        created: decoratedItems.length,
+        sold: decoratedItems.filter((item) => item.status === INVENTORY_STATUS.SOLD).length,
+        following: decoratedItems.filter((item) => item.status === INVENTORY_STATUS.FOLLOWING).length,
+        offline: decoratedItems.filter((item) => item.status === INVENTORY_STATUS.OFFLINE).length,
         ...metrics,
         trendData
       }
     };
   }
-  const myItems = activeItems.filter((item) => item.creatorId === userId);
+  const myRawItems = activeItems.filter((item) => item.creatorId === userId);
+  const myItems = myRawItems.map((item) => decorateItem(item, userId));
   const soldItems = activeItems.filter((item) => item.sellerId === userId);
   const followedItems = activeItems.filter((item) => item.followOwnerId === userId);
-  const offlineItems = myItems.filter((item) => item.status === INVENTORY_STATUS.OFFLINE);
-  const trust = scoreUser(myItems);
+  const offlineItems = myRawItems.filter((item) => item.status === INVENTORY_STATUS.OFFLINE);
+  // scoreUser 只用 status/reviewStatus 等原始字段，不需要 decorate
+  const trust = scoreUser(myRawItems);
   return {
     user,
     isAdminDashboard: false,
@@ -1980,6 +2025,7 @@ module.exports = {
   getUsers,
   getUserById,
   getBoardData,
+  countItems,
   getItemById,
   getLogsByInventoryId,
   getTimeline,
