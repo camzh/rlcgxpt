@@ -141,6 +141,9 @@ function getUsers() {
   return clone(merged);
 }
 
+// seed 只需在进程生命周期内跑一次；resetCloudCacheAfterOriginSwitch 会清 storage 后重置标志
+let _inventorySeedChecked = false;
+
 function ensureSeedData() {
   const items = wx.getStorageSync(STORAGE_KEYS.INVENTORY);
   const logs = wx.getStorageSync(STORAGE_KEYS.LOGS);
@@ -160,6 +163,11 @@ function ensureSeedData() {
       wx.setStorageSync(STORAGE_KEYS.LOGS, retainedLogs);
     }
   }
+  _inventorySeedChecked = true;
+}
+
+function resetSeedCache() {
+  _inventorySeedChecked = false;
 }
 
 function isMockDemoLog(log = {}) {
@@ -169,7 +177,9 @@ function isMockDemoLog(log = {}) {
 }
 
 function getItems() {
-  ensureSeedData();
+  if (!_inventorySeedChecked) {
+    ensureSeedData();
+  }
   return clone(wx.getStorageSync(STORAGE_KEYS.INVENTORY) || []);
 }
 
@@ -1963,6 +1973,7 @@ function getScreenPayload() {
 
 module.exports = {
   ensureSeedData,
+  resetSeedCache,
   clearLocalOnlyItems,
   getBootstrapItems,
   refreshCloudItems,
