@@ -22,3 +22,8 @@
   font-weight: 800;
   color: #17324d;
 }
+
+.metric-list-footer {
+  padding: 28rpx 0 12rpx;
+  text-align: center;
+}

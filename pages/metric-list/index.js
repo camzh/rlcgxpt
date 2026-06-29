@@ -2,6 +2,9 @@ const app = getApp();
 const service = require("../../services/inventory");
 const demandService = require("../../services/demand");
 const notificationService = require("../../services/notifications");
+const { clearPageCloudRefresh, schedulePageCloudRefresh } = require("../../utils/page-sync");
+
+const PAGE_SIZE = 40;
 
 const METRIC_TITLES = {
   created: "全部发布",
@@ -15,7 +18,10 @@ Page({
   data: {
     metric: "created",
     title: "全部发布",
-    items: []
+    items: [],
+    totalCount: 0,
+    countText: "0 条",
+    hasMore: false
   },
 
   onLoad(query) {
@@ -31,9 +37,14 @@ Page({
       return;
     }
     this.loadData();
-    app.refreshCloudData()
-      .then(() => this.loadData())
-      .catch((error) => wx.showToast({ title: error.message, icon: "none" }));
+    schedulePageCloudRefresh(this, app, { notify: false }, {
+      success: () => this.loadData(),
+      fail: (error) => wx.showToast({ title: error.message, icon: "none" })
+    });
+  },
+
+  onHide() {
+    clearPageCloudRefresh(this);
   },
 
   onCloudSynced() {
@@ -60,7 +71,7 @@ Page({
           displayTitle: item.title,
           metricSubtitle: item.summary
         }));
-      this.setData({ items });
+      this.renderItems(items);
       return;
     }
 
@@ -79,7 +90,32 @@ Page({
         return true;
       })
       .sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime());
-    this.setData({ items });
+    this.renderItems(items);
+  },
+
+  renderItems(items) {
+    const source = items || [];
+    const visibleItems = source.slice(0, PAGE_SIZE);
+    this._allMetricItems = source;
+    this.setData({
+      items: visibleItems,
+      totalCount: source.length,
+      countText: source.length > visibleItems.length ? `已显示 ${visibleItems.length} / ${source.length} 条` : `${source.length} 条`,
+      hasMore: source.length > visibleItems.length
+    });
+  },
+
+  onReachBottom() {
+    const source = this._allMetricItems || [];
+    if (!this.data.hasMore || !source.length) {
+      return;
+    }
+    const visibleItems = source.slice(0, this.data.items.length + PAGE_SIZE);
+    this.setData({
+      items: visibleItems,
+      countText: source.length > visibleItems.length ? `已显示 ${visibleItems.length} / ${source.length} 条` : `${source.length} 条`,
+      hasMore: source.length > visibleItems.length
+    });
   },
 
   goDetail(event) {

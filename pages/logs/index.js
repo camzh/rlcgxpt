@@ -1,6 +1,7 @@
 const app = getApp();
 const inventoryService = require("../../services/inventory");
 const demandService = require("../../services/demand");
+const { clearPageCloudRefresh, schedulePageCloudRefresh } = require("../../utils/page-sync");
 
 const TYPE_OPTIONS = [
   { label: "全部对象", value: "all" },
@@ -227,23 +228,31 @@ Page({
     if (!user) return;
     app.syncCustomTabBar(1);
     this.loadLogs();
-    app.refreshCloudData({ notify: false }).then((res) => {
-      if (!res || !res.skipped) this.loadLogs();
+    schedulePageCloudRefresh(this, app, { notify: false }, {
+      success: (res) => {
+        if (!res || !res.skipped) this.loadLogs({ force: true });
+      },
+      fail: (error) => wx.showToast({ title: error.message, icon: "none" })
     });
   },
 
   onCloudSynced() {
-    this.loadLogs();
+    this.loadLogs({ force: true });
+  },
+
+  onHide() {
+    clearPageCloudRefresh(this);
   },
 
   onUnload() {
     clearTimeout(this._filterTimer);
+    clearPageCloudRefresh(this);
   },
 
   loadLogs(options = {}) {
     const full = options.full === true || hasActiveFilters(this.data.filters);
     const signature = logDataSignature(this.data.filters, full);
-    if (signature === this._lastLogSignature) {
+    if (!options.force && signature === this._lastLogSignature) {
       return;
     }
     const timelineOptions = full ? {} : { limit: INITIAL_LOG_SOURCE_LIMIT };

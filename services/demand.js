@@ -310,6 +310,7 @@ function ensureCreateLogsFromDemands() {
 
 function getTimeline(options = {}) {
   const limit = Number(options.limit) || 0;
+  ensureCreateLogsFromDemands();
   if (limit > 0) {
     return takeRecentRows(getRawDemandLogs(), limit).map((log) => ({
         ...log,
@@ -317,7 +318,6 @@ function getTimeline(options = {}) {
         itemType: "demand"
       }));
   }
-  ensureCreateLogsFromDemands();
   const logs = getDemandLogs()
     .sort((a, b) => getCreatedAtTime(b) - getCreatedAtTime(a));
   return (limit > 0 ? logs.slice(0, limit) : logs)
@@ -1251,6 +1251,20 @@ function getMyDashboard(userId) {
     }
   };
 }
+
+function getMyDashboardStats(userId) {
+  const user = authService.getUserById(userId);
+  const list = getDemands().filter((item) => !item.isDeleted);
+  const source = authService.isAdminUser(user) ? list : list.filter((item) => item.creatorId === userId);
+  return {
+    mineStats: {
+      created: source.length,
+      following: source.filter((item) => item.status === "following").length,
+      sold: source.filter((item) => item.status === "done").length,
+      offline: source.filter((item) => item.status === "offline").length
+    }
+  };
+}
 module.exports = {
   ensureSeedData,
   clearLocalOnlyDemands,
@@ -1265,6 +1279,7 @@ module.exports = {
   getAdminDashboard,
   getPendingApprovalCount,
   getMyDashboard,
+  getMyDashboardStats,
   upsertDemand,
   upsertDemandToCloud,
   updateDemandStatus,

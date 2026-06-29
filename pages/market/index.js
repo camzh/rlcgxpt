@@ -1,10 +1,24 @@
 const app = getApp();
 const service = require("../../services/inventory");
 const demandService = require("../../services/demand");
+const { clearPageCloudRefresh, schedulePageCloudRefresh } = require("../../utils/page-sync");
 
 const CHART_WIDTH = 620;
 const CHART_HEIGHT = 240;
 const CHART_PADDING = 24;
+let cachedPixelRatio = 0;
+
+function getPixelRatio() {
+  if (cachedPixelRatio > 0) {
+    return cachedPixelRatio;
+  }
+  try {
+    cachedPixelRatio = (wx.getSystemInfoSync && wx.getSystemInfoSync().pixelRatio) || 1;
+  } catch (error) {
+    cachedPixelRatio = 1;
+  }
+  return cachedPixelRatio;
+}
 
 function buildPriceChart(pricePoints = []) {
   const points = pricePoints.filter((item) => Number(item.price) > 0).slice(-8);
@@ -48,11 +62,16 @@ Page({
     }
     app.syncCustomTabBar(2);
     this.initMarket();
-    app.refreshCloudData({ notify: false })
-      .then((res) => {
+    schedulePageCloudRefresh(this, app, { notify: false }, {
+      success: (res) => {
         if (!res || !res.skipped) this.initMarket();
-      })
-      .catch((error) => wx.showToast({ title: error.message, icon: "none" }));
+      },
+      fail: (error) => wx.showToast({ title: error.message, icon: "none" })
+    });
+  },
+
+  onHide() {
+    clearPageCloudRefresh(this);
   },
 
   onCloudSynced() {
@@ -95,7 +114,7 @@ Page({
       if (!canvas || !size) {
         return;
       }
-      const dpr = wx.getSystemInfoSync().pixelRatio || 1;
+      const dpr = getPixelRatio();
       canvas.width = size.width * dpr;
       canvas.height = size.height * dpr;
       const ctx = canvas.getContext("2d");

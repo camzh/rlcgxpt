@@ -2,6 +2,7 @@ const app = getApp();
 const service = require("../../services/inventory");
 const demandService = require("../../services/demand");
 const { INVENTORY_STATUS } = require("../../utils/constants");
+const { clearPageCloudRefresh, schedulePageCloudRefresh } = require("../../utils/page-sync");
 
 const URGENT_FILTER = "urgent";
 const RENTABLE_FILTER = "rentable";
@@ -99,15 +100,20 @@ Page({
     demandService.ensureSeedData();
     this.syncSourceOptions();
     this.loadData();
-    app.refreshCloudData({ notify: false })
-      .then((res) => {
+    schedulePageCloudRefresh(this, app, { notify: false }, {
+      success: (res) => {
         if (!res || !res.skipped) this.loadData();
-      })
-      .catch((error) => {
+      },
+      fail: (error) => {
         const message = error && error.message ? error.message : "同步失败";
         this.setData({ pageError: message });
         wx.showToast({ title: message, icon: "none" });
-      });
+      }
+    });
+  },
+
+  onHide() {
+    clearPageCloudRefresh(this);
   },
 
   onCloudSynced() {

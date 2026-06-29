@@ -86,7 +86,7 @@
       <text class="section-title">最近货源</text>
       <button class="mini-action mini-dark" bindtap="goCreate">新增货源</button>
     </view>
-    <view wx:if="{{myItems.length === 0}}" class="muted">暂无货源。</view>
+    <view wx:if="{{myItemCount === 0}}" class="muted">暂无货源。</view>
     <view wx:for="{{visibleMyItems}}" wx:key="id" class="mine-item" data-id="{{item.id}}" data-type="supply" bindtap="goDetail">
       <view class="mine-item-main">
         <view class="mine-title">{{item.displayTitle}}</view>

@@ -2,7 +2,7 @@
   <view class="board-header">
     <view>
       <view class="page-title">{{title}}</view>
-      <view class="page-subtitle">{{items.length}} 条</view>
+      <view class="page-subtitle">{{countText}}</view>
     </view>
   </view>
 
@@ -19,4 +19,6 @@
     </view>
     <view wx:if="{{item.itemType !== 'notice'}}" class="status-tag {{item.itemType === 'demand' ? item.cardStatusClass : item.statusMeta.className}}">{{item.itemType === 'demand' ? item.statusText : item.statusMeta.text}}</view>
   </view>
+
+  <view wx:if="{{hasMore}}" class="muted metric-list-footer">继续下滑查看更多</view>
 </view>

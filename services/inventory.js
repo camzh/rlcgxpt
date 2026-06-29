@@ -1797,6 +1797,60 @@ function getMyDashboard(userId) {
   };
 }
 
+function getMyDashboardPreview(userId, limit = 6) {
+  const user = authService.getUsers().find((item) => item.id === userId) || getUserById(userId);
+  const rawItems = getItems();
+  const activeItems = rawItems.filter((item) => !item.isDeleted);
+  const previewLimit = Math.max(0, Number(limit) || 0);
+  const scopedItems = authService.isAdminUser(user)
+    ? activeItems
+    : activeItems.filter((item) => item.creatorId === userId);
+  const previewItems = scopedItems
+    .slice(0, previewLimit)
+    .map((item) => decorateItem(item, userId));
+
+  if (authService.isAdminUser(user)) {
+    const metrics = getPeriodMetrics(rawItems);
+    const trendData = buildTrendData(rawItems);
+    return {
+      user,
+      isAdminDashboard: true,
+      myItems: previewItems,
+      myItemTotal: activeItems.length,
+      mineStats: {
+        created: activeItems.length,
+        sold: activeItems.filter((item) => item.status === INVENTORY_STATUS.SOLD).length,
+        following: activeItems.filter((item) => item.status === INVENTORY_STATUS.FOLLOWING).length,
+        offline: activeItems.filter((item) => item.status === INVENTORY_STATUS.OFFLINE).length,
+        ...metrics,
+        trendData
+      }
+    };
+  }
+
+  const myItems = scopedItems;
+  const soldItems = activeItems.filter((item) => item.sellerId === userId);
+  const followedItems = activeItems.filter((item) => item.followOwnerId === userId);
+  const offlineItems = myItems.filter((item) => item.status === INVENTORY_STATUS.OFFLINE);
+  const trust = scoreUser(myItems);
+  return {
+    user,
+    isAdminDashboard: false,
+    myItems: previewItems,
+    myItemTotal: myItems.length,
+    mineStats: {
+      created: myItems.length,
+      sold: soldItems.length,
+      following: followedItems.length,
+      offline: offlineItems.length,
+      completionRateText: `${Math.round(trust.completionRate * 100)}%`,
+      approvalRateText: `${Math.round(trust.approvalRate * 100)}%`,
+      trustScore: trust.trustScore,
+      trustScoreText: trust.trustScore === null ? "发布不足20条" : `${trust.trustScore}`
+    }
+  };
+}
+
 function getAdminDashboard(adminId = "") {
   const admin = adminId ? getUserById(adminId) : null;
   const rawItems = getItems();
@@ -1859,10 +1913,10 @@ function getPendingApprovalCount(adminId = "") {
 
 function getTimeline(options = {}) {
   const limit = Number(options.limit) || 0;
+  ensureCreateLogsFromItems();
   if (limit > 0) {
     return takeRecentRows(getRawLogs(), limit).map(decorateTimelineLog);
   }
-  ensureCreateLogsFromItems();
   const logs = getLogs()
     .sort((a, b) => getCreatedAtTime(b) - getCreatedAtTime(a));
   return (limit > 0 ? logs.slice(0, limit) : logs)
@@ -1922,6 +1976,7 @@ module.exports = {
   getMarketSnapshot,
   getAdminDashboard,
   getPendingApprovalCount,
+  getMyDashboardPreview,
   upsertItem,
   upsertItemToCloud,
   updateStatus,

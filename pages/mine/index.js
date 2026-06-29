@@ -3,12 +3,14 @@ const service = require("../../services/inventory");
 const demandService = require("../../services/demand");
 const authService = require("../../services/auth");
 const notificationService = require("../../services/notifications");
+const { clearPageCloudRefresh, schedulePageCloudRefresh } = require("../../utils/page-sync");
 
 const DASHBOARD_STORAGE_KEYS = [
   "inventory_board_items",
   "inventory_board_demands",
   "inventory_board_notifications"
 ];
+const RECENT_SUPPLY_LIMIT = 6;
 
 function dashboardSignature(userId) {
   try {
@@ -51,7 +53,7 @@ Page({
       publishGrowthText: "+0",
       soldGrowthText: "+0"
     },
-    myItems: [],
+    myItemCount: 0,
     visibleMyItems: [],
     recentItemsExpanded: false,
     hasMoreMyItems: false,
@@ -67,22 +69,23 @@ Page({
     }
     app.syncCustomTabBar(3);
     this.loadData();
-    if (authService.isAdminUser(user)) {
-      app.refreshCloudData({ notify: false })
-        .then((res) => {
-          if (!res || !res.skipped) this.loadData();
-        })
-        .catch((error) => {
+    schedulePageCloudRefresh(this, app, { notify: false }, {
+      success: (res) => {
+        if (!res || !res.skipped) this.loadData();
+      },
+      fail: (error) => {
+        if (authService.isAdminUser(user)) {
           wx.showToast({ title: error.message, icon: "none" });
           this.loadData();
-        });
-      return;
-    }
-    app.refreshCloudData({ notify: false })
-      .then((res) => {
-        if (!res || !res.skipped) this.loadData();
-      })
-      .catch((error) => wx.showToast({ title: error.message, icon: "none" }));
+          return;
+        }
+        wx.showToast({ title: error.message, icon: "none" });
+      }
+    });
+  },
+
+  onHide() {
+    clearPageCloudRefresh(this);
   },
 
   onCloudSynced() {
@@ -95,18 +98,26 @@ Page({
     if (signature === this._lastDashboardSignature) {
       return;
     }
-    const data = service.getMyDashboard(activeUserId);
-    const demandData = demandService.getMyDashboard(activeUserId);
+    const usePreview = !this.data.recentItemsExpanded && service.getMyDashboardPreview;
+    const data = usePreview
+      ? service.getMyDashboardPreview(activeUserId, RECENT_SUPPLY_LIMIT)
+      : service.getMyDashboard(activeUserId);
+    const demandData = demandService.getMyDashboardStats
+      ? demandService.getMyDashboardStats(activeUserId)
+      : demandService.getMyDashboard(activeUserId);
     const approvalTodoCount = data.isAdminDashboard
       ? (service.getPendingApprovalCount ? service.getPendingApprovalCount(activeUserId) : 0)
         + (demandService.getPendingApprovalCount ? demandService.getPendingApprovalCount(activeUserId) : 0)
       : 0;
     const notifications = notificationService.getNotificationsByUser(activeUserId);
     const supplyItems = this.markItemType(data.myItems || [], "supply");
-    const recentSupplyState = this.buildRecentSupplyState(supplyItems, this.data.recentItemsExpanded);
+    const itemTotal = data.myItemTotal === undefined ? supplyItems.length : data.myItemTotal;
+    const recentSupplyState = this.buildRecentSupplyState(supplyItems, this.data.recentItemsExpanded, itemTotal);
+    this._myItems = supplyItems;
     const nextData = {
-      ...data,
-      myItems: supplyItems,
+      user: data.user,
+      isAdminDashboard: data.isAdminDashboard,
+      myItemCount: itemTotal,
       ...recentSupplyState,
       mineStats: {
         ...data.mineStats,
@@ -125,15 +136,16 @@ Page({
     this._lastDashboardSignature = dashboardSignature(activeUserId);
   },
 
-  buildRecentSupplyState(items, expanded) {
-    const limit = 6;
+  buildRecentSupplyState(items, expanded, totalCount) {
+    const limit = RECENT_SUPPLY_LIMIT;
     const source = items || [];
-    const hasMore = source.length > limit;
+    const realTotal = Math.max(source.length, Number(totalCount) || 0);
+    const hasMore = realTotal > limit;
     return {
       visibleMyItems: expanded ? source : source.slice(0, limit),
       recentItemsExpanded: hasMore && expanded,
       hasMoreMyItems: hasMore,
-      hiddenMyItemCount: Math.max(source.length - limit, 0)
+      hiddenMyItemCount: Math.max(realTotal - limit, 0)
     };
   },
 
@@ -153,11 +165,15 @@ Page({
   },
 
   expandRecentItems() {
-    this.setData(this.buildRecentSupplyState(this.data.myItems, true));
+    if ((this._myItems || []).length < this.data.myItemCount) {
+      const data = service.getMyDashboard(app.globalData.activeUserId);
+      this._myItems = this.markItemType(data.myItems || [], "supply");
+    }
+    this.setData(this.buildRecentSupplyState(this._myItems, true, this.data.myItemCount));
   },
 
   collapseRecentItems() {
-    this.setData(this.buildRecentSupplyState(this.data.myItems, false));
+    this.setData(this.buildRecentSupplyState(this._myItems, false, this.data.myItemCount));
     wx.pageScrollTo({
       selector: "#recentSupplyBlock",
       duration: 200
