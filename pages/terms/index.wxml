@@ -1,0 +1,21 @@
+<view class="page policy-page">
+  <view class="card policy-card">
+    <view class="policy-title">用户协议</view>
+    <view class="policy-updated">适用于润六尺内部供需协作工具</view>
+
+    <view class="section-title">一、使用范围</view>
+    <view class="paragraph">本小程序仅用于润六尺内部员工进行货源、需求、跟进、审批和业务协作管理。未经授权的人员不得使用。</view>
+
+    <view class="section-title">二、账号责任</view>
+    <view class="paragraph">用户应使用本人真实姓名和手机号登录，不得冒用他人身份，不得将账号、密码或登录信息提供给他人使用。</view>
+
+    <view class="section-title">三、业务信息要求</view>
+    <view class="paragraph">用户发布货源、需求、跟进、下架、完成等信息时，应确保内容真实、准确、及时，不得发布虚假、重复或无关信息。</view>
+
+    <view class="section-title">四、操作留痕</view>
+    <view class="paragraph">系统会记录必要的业务操作日志，用于内部协作、权限校验、审批流转和责任追溯。</view>
+
+    <view class="section-title">五、违规处理</view>
+    <view class="paragraph">如发现账号冒用、虚假发布、违规操作等情况，管理员可暂停账号使用并按公司内部规则处理。</view>
+  </view>
+</view>

@@ -1,0 +1,61 @@
+<view class="page admin-page">
+  <view class="board-header">
+    <view>
+      <view class="page-title">审批中心</view>
+      <view class="page-subtitle">处理上传信息和下架申请</view>
+    </view>
+  </view>
+
+  <view class="approval-summary">
+    <view class="summary-card">
+      <text class="summary-value">{{pendingReviewCount}}</text>
+      <text class="summary-label">上传待审</text>
+    </view>
+    <view class="summary-card">
+      <text class="summary-value">{{pendingOfflineCount}}</text>
+      <text class="summary-label">下架待审</text>
+    </view>
+  </view>
+
+  <view class="card block">
+    <view class="block-title">上传信息审核</view>
+    <view wx:if="{{dashboard.pendingReviewItems.length === 0}}" class="muted">暂无待审核上传信息</view>
+    <view wx:for="{{dashboard.pendingReviewItems}}" wx:key="id" class="review-card">
+      <view class="review-title">{{item.displayTitle || item.title}}</view>
+      <view class="review-meta">{{item.category}} · {{item.brand}} {{item.model}} · {{item.creatorName}}</view>
+      <view class="review-meta">完整度 {{item.completionText}} · {{item.updatedAtText}}</view>
+      <view class="muted">{{item.reviewReason}}</view>
+      <view class="review-actions">
+        <button class="button-ghost admin-tool-button review-action-button" data-id="{{item.id}}" bindtap="goReviewDetail">查看</button>
+        <button class="button-warn admin-tool-button review-action-button" data-id="{{item.id}}" bindtap="rejectReview">拒绝</button>
+        <button class="button-primary admin-tool-button review-action-button" data-id="{{item.id}}" bindtap="approveReview">通过</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="card block">
+    <view class="block-title">下架审核</view>
+    <view wx:if="{{dashboard.pendingOfflineItems.length === 0 && dashboard.pendingDemandOfflineItems.length === 0}}" class="muted">暂无待审核下架申请</view>
+    <view wx:for="{{dashboard.pendingOfflineItems}}" wx:key="id" class="review-card">
+      <view class="review-title">{{item.displayTitle || item.title}}</view>
+      <view class="review-meta">{{item.category}} · {{item.brand}} {{item.model}} · {{item.creatorName}}</view>
+      <view class="review-meta">申请人：{{item.offlineRequestedByName || item.creatorName}}</view>
+      <view class="muted">下架原因：{{item.offlineReason}}</view>
+      <view class="review-actions">
+        <button class="button-ghost admin-tool-button review-action-button" data-id="{{item.id}}" bindtap="goReviewDetail">查看</button>
+        <button class="button-ghost admin-tool-button review-action-button" data-id="{{item.id}}" data-type="supply" disabled="{{processingIds[item.id]}}" bindtap="rejectOffline">拒绝</button>
+        <button class="button-warn admin-tool-button review-action-button" data-id="{{item.id}}" data-type="supply" disabled="{{processingIds[item.id]}}" bindtap="approveOffline">{{processingIds[item.id] ? '处理中' : '下架'}}</button>
+      </view>
+    </view>
+    <view wx:for="{{dashboard.pendingDemandOfflineItems}}" wx:key="id" class="review-card">
+      <view class="review-title">{{item.title}}</view>
+      <view class="review-meta">需求 · {{item.brand}} {{item.model}} · {{item.creatorName}}</view>
+      <view class="review-meta">申请人：{{item.offlineRequestedByName || item.creatorName}}</view>
+      <view class="muted">下架原因：{{item.offlineReason}}</view>
+      <view class="review-actions">
+        <button class="button-ghost admin-tool-button review-action-button" data-id="{{item.id}}" data-type="demand" disabled="{{processingIds[item.id]}}" bindtap="rejectOffline">拒绝</button>
+        <button class="button-warn admin-tool-button review-action-button" data-id="{{item.id}}" data-type="demand" disabled="{{processingIds[item.id]}}" bindtap="approveOffline">{{processingIds[item.id] ? '处理中' : '下架'}}</button>
+      </view>
+    </view>
+  </view>
+</view>

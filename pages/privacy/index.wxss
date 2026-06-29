@@ -1,0 +1,33 @@
+.policy-page {
+  padding-top: 28rpx;
+}
+
+.policy-card {
+  padding: 30rpx;
+}
+
+.policy-title {
+  font-size: 38rpx;
+  font-weight: 700;
+  color: #133a5e;
+}
+
+.policy-updated {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: #6b7a90;
+}
+
+.section-title {
+  margin-top: 28rpx;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #133a5e;
+}
+
+.paragraph {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: #41546b;
+  line-height: 1.8;
+}

@@ -1,0 +1,22 @@
+<view class="page metric-list-page">
+  <view class="board-header">
+    <view>
+      <view class="page-title">{{title}}</view>
+      <view class="page-subtitle">{{items.length}} 条</view>
+    </view>
+  </view>
+
+  <view wx:if="{{items.length === 0}}" class="card empty-card">
+    <view class="empty-title">暂无对应信息</view>
+    <view class="muted">返回后可查看其他业务数据。</view>
+  </view>
+
+  <view wx:for="{{items}}" wx:key="id" class="card metric-card-item" data-id="{{item.id}}" data-type="{{item.itemType}}" bindtap="goDetail">
+    <view class="metric-item-main">
+      <view class="metric-item-title">{{item.displayTitle || item.title}}</view>
+      <view class="muted">{{item.metricSubtitle}}</view>
+      <view wx:if="{{metric === 'offline' && (item.offlineReason || item.completionReason)}}" class="muted">原因：{{item.offlineReason || item.completionReason}}</view>
+    </view>
+    <view wx:if="{{item.itemType !== 'notice'}}" class="status-tag {{item.itemType === 'demand' ? item.cardStatusClass : item.statusMeta.className}}">{{item.itemType === 'demand' ? item.statusText : item.statusMeta.text}}</view>
+  </view>
+</view>

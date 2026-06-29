@@ -1,0 +1,8 @@
+{
+  "name": "verifySmsCode",
+  "version": "1.0.0",
+  "description": "校验短信验证码",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

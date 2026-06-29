@@ -1,0 +1,105 @@
+<view class="page mine-page">
+  <view class="profile-panel">
+    <view class="avatar">{{user.name.slice(0, 1)}}</view>
+    <view class="profile-info">
+      <view class="name">{{user.name}}</view>
+      <view class="muted">{{user.roleLabel}}</view>
+      <view class="muted" wx:if="{{user.department}}">{{user.department}} · {{user.title}}</view>
+    </view>
+  </view>
+
+  <view wx:if="{{isAdminDashboard}}" class="admin-dashboard">
+    <view class="kpi-row mine-kpis">
+      <view class="kpi-card" data-metric="created" bindtap="selectMetric"><text class="kpi-value">{{mineStats.created}}</text><text class="kpi-label">全部发布</text></view>
+      <view class="kpi-card" data-metric="following" bindtap="selectMetric"><text class="kpi-value">{{mineStats.following}}</text><text class="kpi-label">跟进中</text></view>
+      <view class="kpi-card" data-metric="sold" bindtap="selectMetric"><text class="kpi-value">{{mineStats.sold}}</text><text class="kpi-label">已完成</text></view>
+      <view class="kpi-card" data-metric="offline" bindtap="selectMetric"><text class="kpi-value">{{mineStats.offline}}</text><text class="kpi-label">历史下架</text></view>
+      <view class="kpi-card" data-metric="notifications" bindtap="selectMetric"><text class="kpi-value">{{notifications.length}}</text><text class="kpi-label">提醒</text></view>
+    </view>
+
+    <view class="card growth-card">
+      <view class="growth-head">
+        <view>
+          <view class="block-title">业务增长趋势</view>
+          <view class="muted">最近 7 天发布与成交变化</view>
+        </view>
+        <view class="trend-legend">
+          <text><text class="legend-dot publish-dot"></text>发布</text>
+          <text><text class="legend-dot sold-dot"></text>成交</text>
+        </view>
+      </view>
+      <view class="trend-chart">
+        <view wx:for="{{mineStats.trendData}}" wx:key="key" class="trend-day">
+          <view class="bar-wrap">
+            <view class="trend-bar publish-bar" style="height: {{item.publishedHeight}}%;"></view>
+            <view class="trend-bar sold-bar" style="height: {{item.soldHeight}}%;"></view>
+          </view>
+          <view class="trend-counts">{{item.published}}/{{item.sold}}</view>
+          <view class="trend-label">{{item.label}}</view>
+        </view>
+      </view>
+      <view class="growth-grid">
+        <view>
+          <view class="growth-value {{mineStats.publishGrowthText.indexOf('-') === 0 ? 'growth-down' : 'growth-up'}}">{{mineStats.publishGrowthText}}</view>
+          <view class="muted">本周发布较上周</view>
+        </view>
+        <view>
+          <view class="growth-value {{mineStats.soldGrowthText.indexOf('-') === 0 ? 'growth-down' : 'growth-up'}}">{{mineStats.soldGrowthText}}</view>
+          <view class="muted">本周成交较上周</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:else class="kpi-row mine-kpis">
+    <view class="kpi-card" data-metric="created" bindtap="selectMetric"><text class="kpi-value">{{mineStats.created}}</text><text class="kpi-label">我发布</text></view>
+    <view class="kpi-card" data-metric="following" bindtap="selectMetric"><text class="kpi-value">{{mineStats.following}}</text><text class="kpi-label">跟进中</text></view>
+    <view class="kpi-card" data-metric="sold" bindtap="selectMetric"><text class="kpi-value">{{mineStats.sold}}</text><text class="kpi-label">已完成</text></view>
+    <view class="kpi-card" data-metric="offline" bindtap="selectMetric"><text class="kpi-value">{{mineStats.offline}}</text><text class="kpi-label">历史下架</text></view>
+    <view class="kpi-card" data-metric="notifications" bindtap="selectMetric"><text class="kpi-value">{{notifications.length}}</text><text class="kpi-label">提醒</text></view>
+  </view>
+
+  <view wx:if="{{isAdminDashboard}}" class="card approval-entry-card">
+    <view class="mine-head">
+      <view>
+        <view class="section-title">审批中心</view>
+        <view class="muted">上传信息与下架申请审核</view>
+      </view>
+      <button class="button-primary admin-tool-button" bindtap="goApprovals">
+        <text>进入审批</text>
+        <text wx:if="{{approvalTodoCount > 0}}"> ({{approvalTodoCount}})</text>
+      </button>
+    </view>
+  </view>
+
+  <view class="card block">
+    <view class="block-title">{{isAdminDashboard ? '部门提醒' : '我的提醒'}}</view>
+    <view wx:if="{{notifications.length === 0}}" class="muted">暂无提醒</view>
+    <view wx:for="{{notifications}}" wx:key="id" class="review-card">
+      <view class="review-title">{{item.title}}</view>
+      <view class="muted">{{item.summary}}</view>
+    </view>
+  </view>
+
+  <view id="recentSupplyBlock" class="card mine-card">
+    <view class="mine-head">
+      <text class="section-title">最近货源</text>
+      <button class="mini-action mini-dark" bindtap="goCreate">新增货源</button>
+    </view>
+    <view wx:if="{{myItems.length === 0}}" class="muted">暂无货源。</view>
+    <view wx:for="{{visibleMyItems}}" wx:key="id" class="mine-item" data-id="{{item.id}}" data-type="supply" bindtap="goDetail">
+      <view class="mine-item-main">
+        <view class="mine-title">{{item.displayTitle}}</view>
+        <view class="mine-subtitle">{{item.brand}} · {{item.model}} · {{item.updatedAtText}}</view>
+      </view>
+      <view class="mine-item-status">
+        <view class="status-tag {{item.statusMeta.className}}">{{item.statusMeta.text}}</view>
+      </view>
+    </view>
+    <button wx:if="{{hasMoreMyItems && !recentItemsExpanded}}" class="show-more-button" bindtap="expandRecentItems">查看更多 {{hiddenMyItemCount}} 条</button>
+  </view>
+
+  <button class="signout-button" bindtap="signOut">退出当前身份</button>
+
+  <button wx:if="{{recentItemsExpanded}}" class="collapse-fixed-button" bindtap="collapseRecentItems">折叠</button>
+</view>

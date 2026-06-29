@@ -1,0 +1,59 @@
+<view class="page board-page">
+  <view class="board-header">
+    <view>
+      <view class="page-title">需求池</view>
+      <view class="page-subtitle">按客户、预算和交期判断优先级</view>
+    </view>
+    <button class="mini-action" bindtap="goCreate">新增</button>
+  </view>
+
+  <view class="kpi-row">
+    <view class="kpi-card"><text class="kpi-value">{{stats.total}}</text><text class="kpi-label">总需求</text></view>
+    <view class="kpi-card"><text class="kpi-value">{{stats.pending}}</text><text class="kpi-label">求买</text></view>
+    <view class="kpi-card"><text class="kpi-value">{{stats.following}}</text><text class="kpi-label">跟进中</text></view>
+    <view class="kpi-card"><text class="kpi-value">{{stats.done}}</text><text class="kpi-label">完成</text></view>
+  </view>
+
+  <view class="toolbar">
+    <view class="tab-switcher">
+      <view class="tab-switch" bindtap="goSupplyList">货源</view>
+      <view class="tab-switch tab-switch-active">需求</view>
+    </view>
+    <input class="search-input" placeholder="搜索客户、型号、对接人、电话" value="{{keyword}}" bindinput="onKeywordChange" />
+  </view>
+
+  <scroll-view class="status-scroll" scroll-x enable-flex>
+    <view wx:for="{{statusOptions}}" wx:key="value" class="status-chip {{selectedStatus === item.value ? 'status-chip-active' : ''}}" data-value="{{item.value}}" bindtap="onStatusChange">{{item.label}}</view>
+  </scroll-view>
+
+  <view class="section-row">
+    <text class="section-title">需求信息</text>
+    <text class="muted">共 {{list.length}} 条</text>
+  </view>
+
+  <view wx:if="{{list.length === 0}}" class="card empty-card">
+    <view class="empty-title">当前没有需求</view>
+    <view class="muted">可先新增需求，或调整筛选条件。</view>
+  </view>
+
+  <view wx:for="{{list}}" wx:key="id" class="inventory-card {{item.isUrgent ? 'urgent-card' : ''}}" bindtap="goDetail" data-id="{{item.id}}" data-type="demand">
+    <view class="inventory-top">
+      <view class="inventory-main">
+        <view class="inventory-title"><text wx:if="{{item.isUrgent}}" class="urgent-badge">急</text>{{item.cardTitle || item.title}}</view>
+        <view class="inventory-model">{{item.cardSubtitle || (item.customerTag + ' · ' + item.brand + ' · ' + item.model)}}</view>
+      </view>
+      <view class="status-tag {{item.cardStatusClass}}">{{item.statusText}}</view>
+    </view>
+    <view class="business-grid">
+      <view><text class="cell-label">预算</text><text class="cell-value price">{{item.budgetText}}</text></view>
+      <view><text class="cell-label">数量</text><text class="cell-value">{{item.quantity}}</text></view>
+      <view><text class="cell-label">地区/交期</text><text class="cell-value">{{item.region}} · {{item.deliveryDate}}</text></view>
+      <view><text class="cell-label">联系人</text><text class="cell-value">{{item.creatorContactText || item.creatorName}}</text></view>
+    </view>
+    <view class="inventory-foot">
+      <text wx:if="{{item.followOwnerText}}" class="muted">{{item.followOwnerText}}</text>
+      <text wx:else class="muted">{{item.customerTag}}</text>
+      <text class="muted">{{item.updatedAtText}}</text>
+    </view>
+  </view>
+</view>

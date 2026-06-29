@@ -1,0 +1,56 @@
+<view class="page register-page">
+  <view class="card hero register-hero">
+    <view class="hero-title">账号登录</view>
+    <view class="hero-subtitle">请输入姓名、手机号，并使用短信验证码登录。</view>
+  </view>
+
+  <view class="card register-card">
+    <view class="field">
+      <view class="label">姓名</view>
+      <input class="input" value="{{form.name}}" data-field="name" bindinput="onInput" placeholder="请输入姓名" />
+    </view>
+    <view class="field">
+      <view class="label">手机号</view>
+      <input class="input" value="{{form.phone}}" data-field="phone" bindinput="onInput" placeholder="请输入手机号" />
+    </view>
+    <view class="field code-field">
+      <view class="label">验证码</view>
+      <view class="code-row">
+        <input class="input code-input" type="number" value="{{form.code}}" data-field="code" bindinput="onInput" placeholder="请输入6位验证码" maxlength="6" />
+        <button
+          class="code-button {{countdown > 0 ? 'code-button-disabled' : ''}}"
+          bindtap="sendCode"
+          disabled="{{countdown > 0 || sending}}"
+        >
+          {{sending ? '发送中...' : (countdown > 0 ? countdown + 's后重发' : '获取验证码')}}
+        </button>
+      </view>
+    </view>
+
+    <view class="privacy-notice">
+      <view class="privacy-title">手机号用途说明</view>
+      <view class="privacy-text">本小程序为深圳润六尺科技有限公司内部供需协作工具。手机号用于识别员工账号、匹配所属分组、进行审批权限校验及操作留痕。我们不会将手机号用于营销推广或提供给第三方。</view>
+    </view>
+
+    <checkbox-group bindchange="onAgreementChange" class="agreement-line">
+      <label class="agreement-label">
+        <checkbox value="accepted" checked="{{agreementAccepted}}" color="#1677ff" />
+        <text>我已阅读并同意</text>
+        <text class="agreement-link" catchtap="openTerms">《用户协议》</text>
+        <text>和</text>
+        <text class="agreement-link" catchtap="openPrivacy">《隐私政策》</text>
+      </label>
+    </checkbox-group>
+
+    <view wx:if="{{statusText}}" class="status-desc {{statusTextInline ? 'status-desc-inline' : ''}}">{{statusText}}</view>
+
+    <button
+      class="button-primary submit-button"
+      loading="{{logging}}"
+      disabled="{{logging}}"
+      bindtap="login"
+    >
+      登录
+    </button>
+  </view>
+</view>

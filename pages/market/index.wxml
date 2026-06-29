@@ -1,0 +1,55 @@
+<view class="page">
+  <view class="card hero hero-compact">
+    <view class="market-hero-head">
+      <view>
+        <view class="hero-title">行情</view>
+        <view class="hero-subtitle">{{selectedProduct || '暂无产品'}} · 按供需联动展示</view>
+      </view>
+      <picker wx:if="{{productOptions.length > 0}}" mode="selector" range="{{productOptions}}" value="{{selectedProductIndex}}" bindchange="onProductChange">
+        <view class="product-picker">{{productOptions[selectedProductIndex]}}</view>
+      </picker>
+      <view wx:else class="product-picker">暂无产品</view>
+    </view>
+    <view class="stats-grid">
+      <view class="stat-item market-stat"><text class="stat-value">{{snapshot.midpoint}}</text><text class="stat-label">中位价</text></view>
+      <view class="stat-item market-stat"><text class="stat-value">{{snapshot.totalVolume}}</text><text class="stat-label">总量</text></view>
+      <view class="stat-item market-stat"><text class="stat-value">{{board.onSale}}</text><text class="stat-label">在售</text></view>
+      <view class="stat-item market-stat"><text class="stat-value">{{board.following}}</text><text class="stat-label">跟进中</text></view>
+    </view>
+  </view>
+
+  <view class="card block trend-card">
+    <view class="trend-head">
+      <view>
+        <view class="block-title">价格走势</view>
+        <view class="muted">{{selectedProduct || '暂无产品'}}最近报价变化</view>
+      </view>
+      <view class="latest-price">¥{{chart.latestPrice}}</view>
+    </view>
+    <view wx:if="{{!chart.points}}" class="muted">暂无行情数据</view>
+    <view wx:else class="line-chart">
+      <view class="axis-price axis-high">¥{{chart.maxPrice}}</view>
+      <canvas type="2d" id="priceTrendCanvas" class="trend-canvas"></canvas>
+      <view class="axis-price axis-low">¥{{chart.minPrice}}</view>
+      <view class="chart-labels">
+        <text wx:for="{{chart.labels}}" wx:key="*this">{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card block">
+    <view class="block-title">卖盘</view>
+    <view wx:for="{{snapshot.asks}}" wx:key="label" class="quote-row">
+      <text>{{item.label}}</text>
+      <text class="muted">¥{{item.price}} / {{item.quantity}}</text>
+    </view>
+  </view>
+
+  <view class="card block">
+    <view class="block-title">买盘</view>
+    <view wx:for="{{snapshot.bids}}" wx:key="label" class="quote-row">
+      <text>{{item.label}}</text>
+      <text class="muted">¥{{item.price}} / {{item.quantity}}</text>
+    </view>
+  </view>
+</view>

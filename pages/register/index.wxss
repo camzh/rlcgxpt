@@ -1,0 +1,163 @@
+.register-page {
+  padding-top: 28rpx;
+}
+
+.register-hero {
+  padding: 30rpx;
+}
+
+.register-card {
+  padding: 28rpx;
+}
+
+.register-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #133a5e;
+}
+
+.register-subtitle {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #6b7a90;
+  line-height: 1.7;
+}
+
+.status-block {
+  padding: 10rpx 0 0;
+}
+
+.status-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #133a5e;
+}
+
+.status-desc {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #6b7a90;
+  line-height: 1.7;
+}
+
+.status-desc-inline {
+  white-space: nowrap;
+  writing-mode: horizontal-tb;
+  word-break: keep-all;
+}
+
+.privacy-notice {
+  margin-top: 18rpx;
+  padding: 18rpx;
+  border: 1rpx solid #d8e2ef;
+  border-radius: 8rpx;
+  background: #f8fbff;
+}
+
+.privacy-title {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #133a5e;
+}
+
+.privacy-text {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #41546b;
+  line-height: 1.7;
+}
+
+.agreement-line {
+  margin-top: 16rpx;
+  font-size: 23rpx;
+  color: #6b7a90;
+  line-height: 1.7;
+}
+
+.agreement-label {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 4rpx;
+}
+
+.agreement-label checkbox {
+  margin-right: 8rpx;
+  transform: scale(0.78);
+  transform-origin: left top;
+}
+
+.agreement-link {
+  color: #1677ff;
+  font-weight: 600;
+}
+
+.account-confirm {
+  margin: 18rpx 0;
+  padding: 18rpx;
+  border: 1rpx solid #d8e2ef;
+  border-radius: 8rpx;
+  background: #f8fbff;
+}
+
+.account-name {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #133a5e;
+}
+
+.account-meta {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  color: #6b7a90;
+}
+
+.switch-button {
+  margin-top: 14rpx;
+  min-height: 68rpx;
+  line-height: 68rpx;
+  font-size: 26rpx;
+}
+
+.code-field .code-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.code-field .code-input {
+  flex: 1;
+}
+
+.code-button {
+  flex-shrink: 0;
+  width: 220rpx;
+  min-height: 72rpx;
+  line-height: 72rpx;
+  font-size: 24rpx;
+  color: #1677ff;
+  background: #f0f5ff;
+  border: none;
+  border-radius: 8rpx;
+  padding: 0 12rpx;
+}
+
+.code-button::after {
+  border: none;
+}
+
+.code-button-disabled,
+.code-button[disabled] {
+  color: #9aa8bd;
+  background: #eef2f7;
+}
+
+.submit-button {
+  margin-top: 16rpx;
+  min-height: 88rpx;
+  line-height: 88rpx;
+  font-size: 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

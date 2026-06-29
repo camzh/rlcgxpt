@@ -1,0 +1,21 @@
+<view class="page policy-page">
+  <view class="card policy-card">
+    <view class="policy-title">隐私政策</view>
+    <view class="policy-updated">适用于润六尺内部供需协作工具</view>
+
+    <view class="section-title">一、我们收集的信息</view>
+    <view class="paragraph">为完成内部账号识别、分组权限校验、审批流转和操作留痕，本小程序会收集并使用员工姓名、手机号、所属分组、角色权限以及货源/需求相关操作记录。</view>
+
+    <view class="section-title">二、手机号的使用目的</view>
+    <view class="paragraph">手机号用于识别员工账号、匹配所属分组、进行审批权限校验及操作留痕，例如跟进、取消跟进、下架、审批、完成等内部业务操作。</view>
+
+    <view class="section-title">三、信息使用范围</view>
+    <view class="paragraph">相关信息仅用于润六尺内部供需协作管理，不会用于营销推广，不会对外展示，也不会提供给无关第三方。</view>
+
+    <view class="section-title">四、信息保存与安全</view>
+    <view class="paragraph">我们会在业务系统内保存必要的账号和操作记录，用于权限判断、责任追溯和业务协同，并尽力采取合理措施保护数据安全。</view>
+
+    <view class="section-title">五、信息更正与删除</view>
+    <view class="paragraph">如需更正姓名、手机号、所属分组或申请删除账号信息，请联系公司系统管理员处理。</view>
+  </view>
+</view>

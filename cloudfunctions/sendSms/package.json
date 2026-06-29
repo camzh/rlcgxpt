@@ -1,0 +1,9 @@
+{
+  "name": "sendSms",
+  "version": "1.0.0",
+  "description": "发送短信验证码",
+  "dependencies": {
+    "tencentcloud-sdk-nodejs": "^4.1.253",
+    "wx-server-sdk": "~2.6.3"
+  }
+}

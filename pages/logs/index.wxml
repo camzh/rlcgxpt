@@ -1,0 +1,77 @@
+<view class="page activity-page">
+  <view class="log-header">
+    <view class="log-header-main">
+      <view class="page-title">业务日志</view>
+      <view class="page-subtitle">{{filterSummary}}</view>
+    </view>
+    <button class="export-trigger" bindtap="openExportActions">导出</button>
+  </view>
+
+  <view class="filter-panel">
+    <view class="filter-panel-head">
+      <view>
+        <view class="filter-title">筛选条件</view>
+        <view class="filter-subtitle">时间 / 人员 / 关键字 / 操作类型</view>
+      </view>
+    </view>
+
+    <view class="advanced-body">
+      <view class="filter-grid">
+        <picker mode="selector" range="{{dateOptions}}" range-key="label" value="{{dateIndex}}" bindchange="onDateChange">
+          <view class="filter-picker">{{dateOptions[dateIndex].label}}</view>
+        </picker>
+        <picker mode="selector" range="{{typeOptions}}" range-key="label" value="{{typeIndex}}" bindchange="onTypeChange">
+          <view class="filter-picker">{{typeOptions[typeIndex].label}}</view>
+        </picker>
+        <picker mode="selector" range="{{actionOptions}}" range-key="label" value="{{actionIndex}}" bindchange="onActionChange">
+          <view class="filter-picker">{{actionOptions[actionIndex].label}}</view>
+        </picker>
+      </view>
+
+      <view class="search-grid">
+        <input class="filter-input" value="{{filters.operator}}" data-field="operator" bindinput="onFilterInput" placeholder="按操作人筛选" />
+        <input class="filter-input" value="{{filters.keyword}}" data-field="keyword" bindinput="onFilterInput" placeholder="搜索对象、备注、状态" />
+      </view>
+
+      <view class="filter-actions">
+        <view class="clear-filter-action" bindtap="resetFilters">清空筛选</view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{exportStatus}}" class="export-status">{{exportStatus}}</view>
+
+  <view wx:if="{{logSections.length === 0}}" class="empty-state log-empty">
+    <view class="empty-title">{{summary.total === 0 ? '暂无业务日志' : '没有符合条件的日志'}}</view>
+    <view class="muted">{{summary.total === 0 ? '产生新增、编辑、跟进、成交等操作后，会在这里记录。' : '可调整时间、人员或关键字后再试。'}}</view>
+  </view>
+
+  <view wx:for="{{logSections}}" wx:key="key" wx:for-item="section" class="date-section">
+    <view class="date-row">
+      <view class="date-label">{{section.label}}</view>
+      <view class="date-count">{{section.logs.length}} 条</view>
+    </view>
+
+    <view wx:for="{{section.logs}}" wx:key="id" wx:for-item="log" class="log-row log-card" data-id="{{log.id}}" bindtap="toggleLogDetail">
+      <view class="log-time">{{log.timeText}}</view>
+      <view class="log-content">
+        <view class="log-line-main">
+          <text class="operator-name">{{log.operatorName}}</text>
+          <text class="action-name">{{log.actionText}}</text>
+          <text class="type-chip {{log.itemType === 'demand' ? 'type-demand' : 'type-supply'}}">{{log.typeText}}</text>
+        </view>
+        <view class="object-title">{{log.targetTitle}}</view>
+        <view wx:if="{{log.statusText}}" class="change-line">状态：{{log.statusText}}</view>
+        <view wx:if="{{log.remark && !log.isExpanded}}" class="remark-line">备注：{{log.remarkPreview}}</view>
+
+        <view wx:if="{{log.isExpanded}}" class="detail-block">
+          <view wx:for="{{log.detailRows}}" wx:key="label" wx:for-item="row" class="detail-row">
+            <view class="detail-label">{{row.label}}</view>
+            <view class="detail-value">{{row.value}}</view>
+          </view>
+        </view>
+      </view>
+      <view class="detail-toggle">{{log.isExpanded ? '收起' : '展开'}}</view>
+    </view>
+  </view>
+</view>
