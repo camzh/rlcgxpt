@@ -2,6 +2,7 @@ const authService = require("./services/auth");
 const inventoryService = require("./services/inventory");
 const demandService = require("./services/demand");
 const cloudApi = require("./services/cloud-api");
+const subscribeService = require("./services/subscribe");
 
 const BOOTSTRAP_STORAGE_KEY = "inventory_board_mini_bootstrap_done";
 const CLOUD_MIGRATION_STORAGE_KEY = "inventory_board_cloud_origin_v3_rlcgxpt";
@@ -57,6 +58,8 @@ App({
     if (currentUser && currentUser.approvalStatus === "approved") {
       this.refreshRemoteProfile();
       this.startForegroundSync();
+      // 获取用户 openid 并同步到后端（用于订阅消息推送）
+      subscribeService.ensureOpenid(this);
     }
   },
 

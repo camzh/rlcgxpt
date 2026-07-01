@@ -1,5 +1,6 @@
 const app = getApp();
 const service = require("../../services/inventory");
+const subscribeService = require("../../services/subscribe");
 const {
   DEFAULT_ENUM_OPTIONS,
   BUSINESS_TYPES,
@@ -511,6 +512,9 @@ Page({
         return;
       }
     }
+    // 静默请求审批通知授权（不打断提交流程）
+    const tmplIds = subscribeService.getLocalTemplateIds();
+    subscribeService.requestMessageSubscription([tmplIds.TM_APPROVAL]).catch(() => {});
     this.setData({ submitting: true });
     wx.showLoading({ title: "同步中" });
     service.upsertItemToCloud(form, app.globalData.activeUserId, this.data.id)

@@ -1,7 +1,8 @@
-﻿const app = getApp();
+const app = getApp();
 const service = require("../../services/inventory");
 const demandService = require("../../services/demand");
 const authService = require("../../services/auth");
+const subscribeService = require("../../services/subscribe");
 const { INVENTORY_STATUS } = require("../../utils/constants");
 
 function normalizeMediaFiles(item = {}) {
@@ -56,11 +57,18 @@ Page({
     canForceDeleteDemand: false,
     processingAction: "",
     canvasWidth: 750,
-    canvasHeight: 1200
+    canvasHeight: 1200,
+    confirmSold: false,
+    confirmSoldToken: ""
   },
 
   onLoad(query) {
-    this.setData({ id: query.id || "", type: query.type || "supply" });
+    this.setData({
+      id: query.id || "",
+      type: query.type || "supply",
+      confirmSold: query.confirmSold === "1" ? true : false,
+      confirmSoldToken: query.token || ""
+    });
   },
 
   onShow() {
@@ -68,9 +76,14 @@ Page({
     if (!user) {
       return;
     }
-    this.loadData();
     app.refreshCloudData()
       .then(() => this.loadData())
+      .then(() => {
+        // 如果是订阅消息点击进入的成交确认，则弹窗
+        if (this.data.confirmSold && this.data.item && this.data.item.status === INVENTORY_STATUS.SOLD) {
+          this.showSoldConfirmDialog();
+        }
+      })
       .catch((error) => wx.showToast({ title: error.message, icon: "none" }));
   },
 
@@ -168,6 +181,12 @@ Page({
       wx.showToast({ title: "当前状态不可操作", icon: "none" });
       return;
     }
+    // 静默请求跟进提醒授权（不打断操作流程）
+    const tmplIds = subscribeService.getLocalTemplateIds();
+    subscribeService.requestMessageSubscription([
+      tmplIds.TM_FOLLOW,
+      tmplIds.TM_APPROVAL
+    ]).catch(() => {});
     this.runStatusAction("follow", () => this.data.type === "demand"
       ? demandService.updateDemandStatusToCloud(this.data.id, app.globalData.activeUserId, "following")
       : service.updateStatusToCloud(this.data.id, app.globalData.activeUserId, INVENTORY_STATUS.FOLLOWING, "标记跟进中"), "已标记跟进中");
@@ -178,6 +197,9 @@ Page({
       wx.showToast({ title: "当前状态不可操作", icon: "none" });
       return;
     }
+    // 请求成交确认提醒授权（弹出授权框）
+    const tmplIds = subscribeService.getLocalTemplateIds();
+    subscribeService.requestMessageSubscription([tmplIds.TM_SOLD_CONFIRM]).catch(() => {});
     wx.showModal({
       title: "确认完成",
       content: this.data.type === "demand"
@@ -190,6 +212,47 @@ Page({
           : service.updateStatusToCloud(this.data.id, app.globalData.activeUserId, INVENTORY_STATUS.SOLD, "标记已完成"), "已完成");
       }
     });
+  },
+
+  // 订阅消息点击进入的成交确认弹窗
+  showSoldConfirmDialog() {
+    const item = this.data.item;
+    if (!item) return;
+    wx.showModal({
+      title: "确认成交",
+      content: `您标记的"${item.title}"已被标记为已售出/已完成。\n\n请确认是否真实成交？`,
+      confirmText: "确认成交",
+      cancelText: "误操作，撤销",
+      success: (res) => {
+        if (res.confirm) {
+          // 确认成交，无需操作，状态保持 SOLD
+          wx.showToast({ title: "已确认成交", icon: "success" });
+        } else {
+          // 误操作，回退状态（需要调用服务撤销）
+          this.revertSoldStatus();
+        }
+        // 重置确认标志
+        this.setData({ confirmSold: false, confirmSoldToken: "" });
+      }
+    });
+  },
+
+  // 撤销误标记的成交状态，回退到上一状态
+  revertSoldStatus() {
+    if (!this.data.canOperate) {
+      wx.showToast({ title: "当前状态不可操作", icon: "none" });
+      return;
+    }
+    const revertTarget = this.data.item.previousStatus || INVENTORY_STATUS.ON_SALE;
+    if (this.data.type === "demand") {
+      demandService.updateDemandStatusToCloud(this.data.id, app.globalData.activeUserId, revertTarget)
+        .then(() => wx.showToast({ title: "已撤销，成交状态已回退", icon: "success" }))
+        .catch((err) => wx.showToast({ title: err.message || "撤销失败", icon: "none" }));
+    } else {
+      service.updateStatusToCloud(this.data.id, app.globalData.activeUserId, revertTarget, "撤销成交，回退状态")
+        .then(() => wx.showToast({ title: "已撤销，成交状态已回退", icon: "success" }))
+        .catch((err) => wx.showToast({ title: err.message || "撤销失败", icon: "none" }));
+    }
   },
 
   markOffline() {

@@ -1,5 +1,6 @@
 const app = getApp();
 const demandService = require("../../services/demand");
+const subscribeService = require("../../services/subscribe");
 const {
   BUSINESS_TYPES,
   PRICE_UNIT_OPTIONS,
@@ -303,6 +304,9 @@ Page({
       wx.showToast({ title: "请填写租赁预算", icon: "none" });
       return;
     }
+    // 静默请求审批通知授权（不打断提交流程）
+    const tmplIds = subscribeService.getLocalTemplateIds();
+    subscribeService.requestMessageSubscription([tmplIds.TM_APPROVAL]).catch(() => {});
     this.setData({ submitting: true });
     wx.showLoading({ title: "同步中" });
     demandService.upsertDemandToCloud(form, app.globalData.activeUserId, this.data.id)
