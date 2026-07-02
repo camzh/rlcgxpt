@@ -33,6 +33,7 @@ const LOG_STORAGE_KEYS = [
   "inventory_board_logs",
   "inventory_board_demand_logs"
 ];
+const MAX_CLIPBOARD_EXPORT_LENGTH = 500000;
 
 const STATUS_TEXT = {
   on_sale: "在售",
@@ -162,6 +163,11 @@ function buildLogView(log, index, activeUserId, expandedMap) {
 
 function escapeCsv(value) {
   return `"${String(value === undefined || value === null ? "" : value).replace(/"/g, '""')}"`;
+}
+
+function errorMessage(error) {
+  if (!error) return "未知错误";
+  return text(error.errMsg || error.message || error);
 }
 
 function hasActiveFilters(filters = {}) {
@@ -446,12 +452,22 @@ Page({
     const csv = `\ufeff${this.buildCsv(logs)}`;
     const fileName = `业务日志-${label}-${Date.now()}.csv`;
     const filePath = `${wx.env.USER_DATA_PATH}/${fileName}`;
+    const fileManager = wx.getFileSystemManager();
+    if (typeof fileManager.writeFileSync === "function") {
+      try {
+        fileManager.writeFileSync(filePath, csv, "utf8");
+        this.shareExportFile(filePath, fileName, csv, logs.length);
+      } catch (error) {
+        this.copyExportToClipboard(csv, logs.length, `写入文件失败：${errorMessage(error)}`);
+      }
+      return;
+    }
     wx.getFileSystemManager().writeFile({
       filePath,
       data: csv,
       encoding: "utf8",
       success: () => this.shareExportFile(filePath, fileName, csv, logs.length),
-      fail: () => this.copyExportToClipboard(csv, logs.length)
+      fail: (error) => this.copyExportToClipboard(csv, logs.length, `写入文件失败：${errorMessage(error)}`)
     });
   },
 
@@ -461,21 +477,36 @@ Page({
         filePath,
         fileName,
         success: () => this.setData({ exportStatus: `已生成并分享 ${count} 条日志` }),
-        fail: () => this.copyExportToClipboard(csv, count)
+        fail: (error) => this.copyExportToClipboard(csv, count, `分享文件失败：${errorMessage(error)}`)
       });
       return;
     }
-    this.copyExportToClipboard(csv, count);
+    this.copyExportToClipboard(csv, count, "当前微信版本不支持文件分享");
   },
 
-  copyExportToClipboard(csv, count) {
+  copyExportToClipboard(csv, count, reason = "") {
+    if (csv.length > MAX_CLIPBOARD_EXPORT_LENGTH) {
+      const status = `${reason || "文件分享失败"}；导出内容过大，无法复制到剪贴板`;
+      this.setData({ exportStatus: status });
+      wx.showModal({
+        title: "导出未完成",
+        content: `${status}。请缩小筛选范围后重试，或在真机微信中重新导出。`,
+        showCancel: false
+      });
+      return;
+    }
     wx.setClipboardData({
       data: csv,
       success: () => {
-        this.setData({ exportStatus: `已复制 ${count} 条日志 CSV 内容` });
+        const prefix = reason ? `${reason}；` : "";
+        this.setData({ exportStatus: `${prefix}已复制 ${count} 条日志 CSV 内容` });
         wx.showToast({ title: "已复制导出内容", icon: "success" });
       },
-      fail: () => wx.showToast({ title: "导出失败，请重试", icon: "none" })
+      fail: (error) => {
+        const status = `${reason || "导出失败"}；复制失败：${errorMessage(error)}`;
+        this.setData({ exportStatus: status });
+        wx.showToast({ title: "导出失败，请重试", icon: "none" });
+      }
     });
   }
 });

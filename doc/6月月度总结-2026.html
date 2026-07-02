@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>润六尺供需平台 2026年6月月度总结</title>
+  <style>
+    @page {
+      margin: 2cm;
+      size: A4;
+    }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #fff;
+    }
+    h1 {
+      font-size: 18pt;
+      font-weight: bold;
+      color: #1a1a1a;
+      border-bottom: 2px solid #2563eb;
+      padding-bottom: 10px;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 14pt;
+      font-weight: bold;
+      color: #1a1a1a;
+      margin-top: 25px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #e5e5e5;
+      padding-bottom: 5px;
+    }
+    h3 {
+      font-size: 12pt;
+      font-weight: bold;
+      color: #444;
+      margin-top: 15px;
+      margin-bottom: 10px;
+    }
+    h4 {
+      font-size: 11pt;
+      font-weight: bold;
+      color: #555;
+      margin-top: 12px;
+      margin-bottom: 8px;
+    }
+    p {
+      margin: 8px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 10pt;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px 10px;
+      text-align: left;
+    }
+    th {
+      background: #f5f5f5;
+      font-weight: bold;
+      color: #333;
+    }
+    td {
+      background: #fff;
+    }
+    tr:nth-child(even) td {
+      background: #fafafa;
+    }
+    strong {
+      color: #1a1a1a;
+    }
+    ul, ol {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    li {
+      margin: 5px 0;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #e5e5e5;
+      margin: 20px 0;
+    }
+    blockquote {
+      margin: 10px 0;
+      padding: 10px 15px;
+      background: #f9f9f9;
+      border-left: 3px solid #2563eb;
+      color: #666;
+    }
+    .footer {
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 1px solid #e5e5e5;
+      font-size: 9pt;
+      color: #888;
+      text-align: center;
+    }
+    @media print {
+      body {
+        padding: 0;
+        max-width: none;
+      }
+      h2 {
+        page-break-after: avoid;
+      }
+      table {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>润六尺供需平台 2026年6月月度总结</h1>
+
+<h2>数据统计口径说明</h2>
+
+<h3>统计范围</h3>
+<ul>
+  <li><strong>时间范围</strong>：2026年6月1日 - 2026年6月30日（按创建时间）</li>
+  <li><strong>数据来源</strong>：rlcgxpt.com 平台数据库</li>
+</ul>
+
+<h3>清洗规则</h3>
+<ol>
+  <li><strong>移除测试用户数据</strong>：QA、QA??、临时管理员、临时普通用户（共4个测试账号）</li>
+  <li><strong>保留重复数据</strong>：与页面展示逻辑一致，不做去重</li>
+  <li><strong>留存数据</strong>：未删除的数据，与网页端可见数据一致</li>
+</ol>
+
+<h3>清洗前后对比</h3>
+<table>
+  <thead>
+    <tr><th>维度</th><th>清洗前（含测试）</th><th>清洗后（真实用户）</th><th>变化</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>在售货源</td><td>37 条</td><td>37 条</td><td>0</td></tr>
+    <tr><td>待处理需求</td><td>8 条</td><td>6 条</td><td>-2</td></tr>
+    <tr><td>已成交货源</td><td>39 条</td><td>39 条</td><td>0</td></tr>
+    <tr><td>已完成需求</td><td>3 条</td><td>3 条</td><td>0</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>一、总体概览</h2>
+
+<h3>1.1 留存数据（未删除，与页面一致）</h3>
+<table>
+  <thead>
+    <tr><th>指标</th><th>货源</th><th>需求</th><th>合计</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>在售/待处理</strong></td><td>37 条</td><td>6 条</td><td>43 条</td></tr>
+    <tr><td>已成交/已完成</td><td>39 条</td><td>3 条</td><td>42 条</td></tr>
+    <tr><td><strong>留存总数</strong></td><td>76 条</td><td>9 条</td><td>85 条</td></tr>
+    <tr><td>总数量（件）</td><td>24,602</td><td>931</td><td>-</td></tr>
+    <tr><td>已成交数量（件）</td><td>11,129</td><td>3</td><td>-</td></tr>
+  </tbody>
+</table>
+
+<p><strong>供需比（留存）：8.4 : 1</strong></p>
+
+<h3>1.2 历史全量数据（含已删除）</h3>
+<table>
+  <thead>
+    <tr><th>指标</th><th>货源</th><th>需求</th><th>合计</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>历史上传数量</strong></td><td>108 条</td><td>24 条</td><td>132 条</td></tr>
+    <tr><td><strong>历史完成数量</strong></td><td>41 条</td><td>3 条</td><td>44 条</td></tr>
+    <tr><td><strong>历史下架数量</strong></td><td>29 条</td><td>15 条</td><td>44 条</td></tr>
+    <tr><td>已删除记录</td><td>32 条</td><td>15 条</td><td>47 条</td></tr>
+  </tbody>
+</table>
+
+<p><strong>成交率：38.0%</strong> | <strong>完成率：12.5%</strong> | <strong>下架率：26.9%</strong></p>
+
+<hr>
+
+<h2>二、货源分析</h2>
+
+<h3>2.1 货源状态分布（留存）</h3>
+<table>
+  <thead><tr><th>状态</th><th>数量</th><th>占比</th></tr></thead>
+  <tbody>
+    <tr><td>已成交</td><td>39 条</td><td>51.3%</td></tr>
+    <tr><td>在售中</td><td>37 条</td><td>48.7%</td></tr>
+  </tbody>
+</table>
+
+<h3>2.2 货源品类分布（留存）</h3>
+<table>
+  <thead><tr><th>品类</th><th>总数</th><th>在售</th><th>已成交</th><th>成交率</th></tr></thead>
+  <tbody>
+    <tr><td>整机服务器</td><td>35</td><td>17</td><td>18</td><td>51.4%</td></tr>
+    <tr><td>内存</td><td>12</td><td>6</td><td>6</td><td>50.0%</td></tr>
+    <tr><td>网卡</td><td>8</td><td>4</td><td>4</td><td>50.0%</td></tr>
+    <tr><td>模组</td><td>6</td><td>4</td><td>2</td><td>33.3%</td></tr>
+    <tr><td>SSD固态</td><td>6</td><td>3</td><td>3</td><td>50.0%</td></tr>
+    <tr><td>其他</td><td>4</td><td>1</td><td>3</td><td>75.0%</td></tr>
+    <tr><td>GPU</td><td>3</td><td>1</td><td>2</td><td>66.7%</td></tr>
+    <tr><td>机头</td><td>1</td><td>1</td><td>0</td><td>0%</td></tr>
+    <tr><td>CPU</td><td>1</td><td>0</td><td>1</td><td>100%</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>三、需求分析</h2>
+
+<h3>3.1 需求状态分布（留存）</h3>
+<table>
+  <thead><tr><th>状态</th><th>数量</th><th>占比</th></tr></thead>
+  <tbody>
+    <tr><td>已完成</td><td>3 条</td><td>33.3%</td></tr>
+    <tr><td>待处理</td><td>6 条</td><td>66.7%</td></tr>
+  </tbody>
+</table>
+
+<h3>3.2 需求品类分布（留存）</h3>
+<table>
+  <thead><tr><th>品类</th><th>总数</th><th>待处理</th><th>已完成</th><th>完成率</th></tr></thead>
+  <tbody>
+    <tr><td>整机服务器</td><td>3</td><td>0</td><td>3</td><td>100%</td></tr>
+    <tr><td>其他</td><td>3</td><td>3</td><td>0</td><td>0%</td></tr>
+    <tr><td>内存</td><td>2</td><td>2</td><td>0</td><td>0%</td></tr>
+    <tr><td>GPU</td><td>1</td><td>1</td><td>0</td><td>0%</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>四、人员贡献分析</h2>
+
+<h3>4.1 发布量排行</h3>
+<table>
+  <thead><tr><th>排名</th><th>姓名</th><th>货源</th><th>需求</th><th>成交</th><th>完成</th><th>合计</th><th>占比</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>张家晖</td><td>45</td><td>3</td><td>39</td><td>3</td><td>48</td><td>56.5%</td></tr>
+    <tr><td>2</td><td>许丹瑜</td><td>11</td><td>0</td><td>0</td><td>0</td><td>11</td><td>12.9%</td></tr>
+    <tr><td>3</td><td>董晓东</td><td>7</td><td>0</td><td>0</td><td>0</td><td>7</td><td>8.2%</td></tr>
+    <tr><td>4</td><td>Lisa</td><td>6</td><td>0</td><td>0</td><td>0</td><td>6</td><td>7.1%</td></tr>
+    <tr><td>5</td><td>张瑞</td><td>3</td><td>0</td><td>0</td><td>0</td><td>3</td><td>3.5%</td></tr>
+    <tr><td>6</td><td>大润</td><td>3</td><td>0</td><td>0</td><td>0</td><td>3</td><td>3.5%</td></tr>
+    <tr><td>7</td><td>赵海</td><td>1</td><td>1</td><td>0</td><td>0</td><td>2</td><td>2.4%</td></tr>
+    <tr><td>8-12</td><td>其他5人</td><td>0</td><td>5</td><td>0</td><td>0</td><td>5</td><td>5.9%</td></tr>
+  </tbody>
+</table>
+
+<p><strong>关键发现</strong>：所有成交均来自张家晖一人，占比56.5%</p>
+
+<h3>4.2 组别分布</h3>
+<table>
+  <thead><tr><th>组别</th><th>货源</th><th>需求</th><th>合计</th><th>占比</th></tr></thead>
+  <tbody>
+    <tr><td>市场一组</td><td>45</td><td>3</td><td>48</td><td>56.5%</td></tr>
+    <tr><td>管理员</td><td>17</td><td>0</td><td>17</td><td>20.0%</td></tr>
+    <tr><td>市场二组</td><td>3</td><td>1</td><td>4</td><td>4.7%</td></tr>
+    <tr><td>市场三组</td><td>1</td><td>1</td><td>2</td><td>2.4%</td></tr>
+    <tr><td>未分组</td><td>10</td><td>4</td><td>14</td><td>16.5%</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>五、时间趋势分析</h2>
+
+<table>
+  <thead><tr><th>日期</th><th>货源</th><th>需求</th><th>合计</th></tr></thead>
+  <tbody>
+    <tr><td>6月16日</td><td>5</td><td>3</td><td>8</td></tr>
+    <tr><td>6月18日</td><td>34</td><td>0</td><td>34</td></tr>
+    <tr><td>6月19日</td><td>28</td><td>6</td><td>34</td></tr>
+    <tr><td>6月24日</td><td>5</td><td>0</td><td>5</td></tr>
+    <tr><td>6月30日</td><td>4</td><td>0</td><td>4</td></tr>
+  </tbody>
+</table>
+
+<p><strong>峰值日</strong>：6月18日、19日（各34条）</p>
+
+<hr>
+
+<h2>六、品类机会分析</h2>
+
+<table>
+  <thead><tr><th>品类</th><th>货源</th><th>需求</th><th>供需比</th><th>机会判断</th></tr></thead>
+  <tbody>
+    <tr><td>整机服务器</td><td>35</td><td>3</td><td>11.7:1</td><td>核心品类</td></tr>
+    <tr><td>内存</td><td>12</td><td>2</td><td>6:1</td><td>需求待拓展</td></tr>
+    <tr><td>GPU</td><td>3</td><td>1</td><td>3:1</td><td>高价值品类</td></tr>
+    <tr><td>网卡</td><td>8</td><td>0</td><td>-</td><td>需求空白</td></tr>
+    <tr><td>SSD固态</td><td>6</td><td>0</td><td>-</td><td>需求空白</td></tr>
+    <tr><td>模组</td><td>6</td><td>0</td><td>-</td><td>需求空白</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>七、关键发现与建议</h2>
+
+<h3>核心发现</h3>
+<ol>
+  <li><strong>业务高度集中</strong>：所有成交均来自张家晖一人</li>
+  <li><strong>货源驱动型</strong>：供需比8.4:1，货源远多于需求</li>
+  <li><strong>需求完成率低</strong>：仅12.5%需求被完成</li>
+</ol>
+
+<h3>运营建议</h3>
+<ul>
+  <li>重点开拓网卡、SSD固态、模组等需求空白品类</li>
+  <li>加强新客户引流，提升用户活跃率</li>
+  <li>优化供需匹配算法或加强人工撮合</li>
+</ul>
+
+<hr>
+
+<h2>数据说明</h2>
+<ul>
+  <li>数据来源：润六尺供需平台（rlcgxpt.com）</li>
+  <li>统计周期：2026年6月1日 - 6月30日</li>
+  <li>清洗规则：移除测试用户数据，保留重复数据</li>
+</ul>
+
+<div class="footer">报告生成时间：2026年7月1日</div>
+
+</body>
+</html>
